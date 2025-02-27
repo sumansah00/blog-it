@@ -8,6 +8,9 @@ module.exports = {
     apis: absolutePath("src/apis"),
     common: absolutePath("src/common"),
     components: absolutePath("src/components"),
+    constants: absolutePath("src/constants"),
+    neetocommons: "@bigbinary/neeto-commons-frontend/configs/webpack/resolve",
+    neetoui: "@bigbinary/neetoui",
   },
   extensions: [
     ".ts",
