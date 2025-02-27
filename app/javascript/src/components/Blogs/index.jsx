@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 
-import Post from "./Post";
+import { isNotEmpty } from "@bigbinary/neeto-cist";
+import { Typography } from "@bigbinary/neetoui";
 
-import postsApi from "../../apis/post";
+import postsApi from "apis/post";
+
+import Post from "./Post";
 
 const Blogs = () => {
   const [blogs, setBlogs] = useState([]);
@@ -29,13 +32,13 @@ const Blogs = () => {
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div>
-      <h1>Blogs</h1>
-      <div>
-        {blogs.length > 0 ? (
+    <div className="flex flex-col gap-6 p-8">
+      <Typography style="h1">Blogs</Typography>
+      <div className="flex flex-col gap-4">
+        {isNotEmpty(blogs) ? (
           blogs.map(blog => <Post blog={blog} key={blog.id} />)
         ) : (
-          <p>No blogs available</p>
+          <Typography>No blogs available</Typography>
         )}
       </div>
     </div>

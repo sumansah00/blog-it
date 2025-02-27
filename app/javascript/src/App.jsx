@@ -1,21 +1,15 @@
 import React from "react";
 
-import { Route, Switch, BrowserRouter as Router } from "react-router-dom";
+import { BrowserRouter as Router } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 
-import Blogs from "components/Blogs";
-
-import Navbar from "./components/common/Navbar";
+import Main from "./components/Main";
 
 const App = () => (
-  <>
-    <Navbar />
-    <Router>
-      <Switch>
-        <Route exact path="/" render={() => <Blogs />} />
-        <Route exact path="/about" render={() => <div>About</div>} />
-      </Switch>
-    </Router>
-  </>
+  <Router>
+    <ToastContainer />
+    <Main />
+  </Router>
 );
 
 export default App;
