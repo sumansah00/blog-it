@@ -31,3 +31,4 @@ en:
   post:
     slug:
       immutable: "is immutable!"
+  generic_error: "Something went wrong. Please try again later."
