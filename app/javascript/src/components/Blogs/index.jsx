@@ -5,7 +5,7 @@ import { Typography } from "@bigbinary/neetoui";
 
 import postsApi from "apis/post";
 
-import Post from "./Post";
+import Card from "./Card";
 
 const Blogs = () => {
   const [blogs, setBlogs] = useState([]);
@@ -36,7 +36,7 @@ const Blogs = () => {
       <Typography style="h1">Blogs</Typography>
       <div className="flex flex-col gap-4">
         {isNotEmpty(blogs) ? (
-          blogs.map(blog => <Post blog={blog} key={blog.id} />)
+          blogs.map(blog => <Card blog={blog} key={blog.id} />)
         ) : (
           <Typography>No blogs available</Typography>
         )}
