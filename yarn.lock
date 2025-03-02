@@ -951,10 +951,10 @@
     "@babel/helper-string-parser" "^7.25.9"
     "@babel/helper-validator-identifier" "^7.25.9"
 
-"@bigbinary/neeto-cist@^1.0.15":
-  version "1.0.15"
-  resolved "https://registry.yarnpkg.com/@bigbinary/neeto-cist/-/neeto-cist-1.0.15.tgz#d21e081ae4a28d7855d608926a516b0db894b4b6"
-  integrity sha512-cxRYzZLMsXLcAzpgrj5hJB6BhqJDvmBPF0HU/BUT2WvRbQtzxECF6Cu/68E9iglALAmz0no/uzeUd10dtRvTDQ==
+"@bigbinary/neeto-cist@1.0.6":
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/@bigbinary/neeto-cist/-/neeto-cist-1.0.6.tgz#cf9e34910a765e6cb946503c0bf7ab1632ef8e17"
+  integrity sha512-UebvniTSUyNYOIZMiNSDpV4HqHtwvYfaUaE3+C4ZBSY44csUCRgwOeD0njU3rQpE5eAL+e6KYsV9moRz4/uc0g==
 
 "@bigbinary/neeto-icons@1.17.6":
   version "1.17.6"

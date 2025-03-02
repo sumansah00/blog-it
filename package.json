@@ -31,7 +31,7 @@
     "@babel/preset-env": "7",
     "@babel/preset-react": "7.16.7",
     "@babel/runtime": "7",
-    "@bigbinary/neeto-cist": "^1.0.15",
+    "@bigbinary/neeto-cist": "1.0.6",
     "@bigbinary/neeto-icons": "1.17.6",
     "@bigbinary/neetoui": "5.2.41",
     "@emotion/is-prop-valid": "1.2.0",
