@@ -1,23 +1,22 @@
 import React, { useState } from "react";
 
+import Logger from "js-logger";
+
 import postsApi from "apis/post";
 
 import Form from "./Form";
 
 const Create = ({ history }) => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async event => {
-    event.preventDefault();
+  const handleSubmit = async values => {
     setLoading(true);
     try {
-      await postsApi.create({ title, description });
+      await postsApi.create(values);
       setLoading(false);
       history.push("/");
     } catch (error) {
-      logger.error(error);
+      Logger.error(error);
       setLoading(false);
     }
   };
@@ -25,14 +24,7 @@ const Create = ({ history }) => {
   return (
     <div>
       <div className="flex flex-col gap-y-8">
-        <Form
-          description={description}
-          handleSubmit={handleSubmit}
-          loading={loading}
-          setDescription={setDescription}
-          setTitle={setTitle}
-          title={title}
-        />
+        <Form handleSubmit={handleSubmit} loading={loading} />
       </div>
     </div>
   );

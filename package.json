@@ -77,7 +77,8 @@
     "webpack-assets-manifest": "5",
     "webpack-cli": "4",
     "webpack-dev-server": "4.13.1",
-    "webpack-merge": "5"
+    "webpack-merge": "5",
+    "yup": "^0.32.11"
   },
   "resolutions": {
     "strip-ansi": "^6.0.1",
