@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 
 import { isNotEmpty } from "@bigbinary/neeto-cist";
-import { Typography } from "@bigbinary/neetoui";
+import { Typography, Button } from "@bigbinary/neetoui";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 import postsApi from "apis/post";
 
 import Card from "./Card";
 
 const Blogs = () => {
+  const history = useHistory();
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -31,9 +33,16 @@ const Blogs = () => {
 
   if (error) return <div>Error: {error}</div>;
 
+  const handleAddNewBlog = () => {
+    history.push("/create");
+  };
+
   return (
     <div className="flex flex-col gap-6 p-8">
-      <Typography style="h1">Blogs</Typography>
+      <div className="flex items-center justify-between">
+        <Typography style="h1">Blogs</Typography>
+        <Button label="Add New Blog Post" onClick={handleAddNewBlog} />
+      </div>
       <div className="flex flex-col gap-4">
         {isNotEmpty(blogs) ? (
           blogs.map(blog => <Card blog={blog} key={blog.id} />)
