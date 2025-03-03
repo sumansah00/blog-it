@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { HamburgerMenu, Edit } from "@bigbinary/neeto-icons";
+import { HamburgerMenu, Edit, Home } from "@bigbinary/neeto-icons";
 import { Button, Typography } from "@bigbinary/neetoui";
 import classNames from "classnames";
 import { useHistory } from "react-router-dom";
@@ -34,14 +34,24 @@ const Navbar = ({ children }) => {
     history.push("/create");
   };
 
+  const handleHomeClick = () => {
+    history.push("/");
+  };
+
   return (
     <div className="flex border-r-2 border-black">
       <div className=" flex min-h-screen flex-col items-start gap-2 border-r-2 border-gray-200 p-2">
         <Button
           className="rounded-md p-2 hover:bg-gray-200"
           icon={HamburgerMenu}
-          style="tertiary"
+          style="primary"
           onClick={toggleSidebar}
+        />
+        <Button
+          className="rounded-md p-2 hover:bg-gray-200"
+          icon={Home}
+          style="tertiary"
+          onClick={handleHomeClick}
         />
         <Button
           className="rounded-md p-2 hover:bg-gray-200"
