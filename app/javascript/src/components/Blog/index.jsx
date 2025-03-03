@@ -16,7 +16,6 @@ const Blog = () => {
       const {
         data: { post },
       } = await postsApi.show(slug);
-      Logger.info("Fetched blog:", post);
       setBlog(post);
       setPageLoading(false);
     } catch (error) {

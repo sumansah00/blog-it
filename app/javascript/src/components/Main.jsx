@@ -10,7 +10,7 @@ import { Navbar } from "components/commons";
 const Main = () => (
   <Navbar>
     <Switch>
-      <Route exact component={Blog} path="/blogs/:slug/show" />
+      <Route exact component={Blog} path="/posts/:slug/show" />
       <Route exact component={CreatePost} path="/create" />
       <Route exact path="/" render={() => <Blogs />} />
       <Route exact path="/about" render={() => <div>About</div>} />

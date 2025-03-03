@@ -1,6 +1,6 @@
 import axios from "axios";
 
-axios.defaults.baseURL = "/";
+axios.defaults.baseURL = "/api/v1/";
 
 export const setAuthHeaders = () => {
   axios.defaults.headers = {
