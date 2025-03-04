@@ -5,6 +5,8 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :posts, only: %i[index create show], param: :slug
+      resources :categories, only: %i[index]
+      resources :organizations, only: %i[index]
     end
   end
 
