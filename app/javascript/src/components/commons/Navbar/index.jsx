@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { HamburgerMenu, Edit, Home, Category } from "@bigbinary/neeto-icons";
+import { HamburgerMenu, Edit, Home, FilterAz } from "@bigbinary/neeto-icons";
 import { Button, Typography } from "@bigbinary/neetoui";
 import classNames from "classnames";
 import { useHistory } from "react-router-dom";
@@ -80,7 +80,7 @@ const Navbar = ({ children }) => {
         />
         <Button
           className="rounded-md p-2 hover:bg-gray-200"
-          icon={Category}
+          icon={FilterAz}
           style="tertiary"
           onClick={toggleCategorySidebar}
         />
