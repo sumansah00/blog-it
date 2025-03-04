@@ -56,9 +56,33 @@ const Blog = () => {
             {blog.title}
           </Typography>
         </header>
-        <Typography className="text-gray-600" style="body3">
-          Published on {formattedDate}
-        </Typography>
+        <div className="flex flex-wrap items-center gap-2">
+          {blog.user && (
+            <Typography className="text-gray-700" style="body3">
+              By {blog.user.name}
+            </Typography>
+          )}
+          <Typography className="text-gray-600" style="body3">
+            • Published on {formattedDate}
+          </Typography>
+          {blog.organization && (
+            <Typography className="text-gray-700" style="body3">
+              • {blog.organization.name}
+            </Typography>
+          )}
+        </div>
+        {blog.categories && blog.categories.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {blog.categories.map(category => (
+              <span
+                className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-600"
+                key={category.id}
+              >
+                {category.name}
+              </span>
+            ))}
+          </div>
+        )}
         <div className="mt-4">
           <Typography style="body1">{blog.description}</Typography>
         </div>
