@@ -1,5 +1,5 @@
 # cspell:Disable
-require:
+plugins:
   - rubocop-rails
 
 AllCops:
