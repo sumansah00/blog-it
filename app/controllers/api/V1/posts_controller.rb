@@ -19,12 +19,25 @@ module Api
 
       def create
         post = Post.new(post_params)
+        # Assume current_user is set through authentication
+        # If you don't have authentication yet, you can use a placeholder user:
+        post.user = User.first # Replace with current_user once authentication is implemented
+
         post.save!
-        render_notice("Task was successfully created")
+        render_notice("Post was successfully created")
       end
 
       def show
-        render_json({ post: @post })
+        render_json(
+          {
+            post: @post.as_json(
+              include: {
+                user: { only: [:id, :name, :email] },
+                categories: { only: [:id, :name] },
+                organization: { only: [:id, :name] }
+              }
+            )
+          })
       end
 
       private
@@ -34,7 +47,7 @@ module Api
         end
 
         def post_params
-          params.require(:post).permit(:title, :description)
+          params.require(:post).permit(:title, :description, :organization_id, category_ids: [])
         end
     end
   end
