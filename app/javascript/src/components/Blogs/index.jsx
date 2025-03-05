@@ -13,7 +13,6 @@ const Blogs = () => {
   const history = useHistory();
   const location = useLocation();
   const [blogs, setBlogs] = useState([]);
-  const [filteredBlogs, setFilteredBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedCategoryIds, setSelectedCategoryIds] = useState([]);
@@ -26,12 +25,16 @@ const Blogs = () => {
     setSelectedCategoryIds(categoryIds);
   }, [location.search]);
 
-  // Fetch all blogs
+  // Fetch blogs with category filtering
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
         setLoading(true);
-        const response = await postsApi.fetch();
+        // Pass category IDs to the API
+        const response = await postsApi.fetch({
+          category_ids:
+            selectedCategoryIds.length > 0 ? selectedCategoryIds : null,
+        });
         setBlogs(response.data.posts);
       } catch (error) {
         setError("Failed to fetch blogs");
@@ -42,23 +45,7 @@ const Blogs = () => {
     };
 
     fetchBlogs();
-  }, []);
-
-  // Filter blogs by categories
-  useEffect(() => {
-    if (selectedCategoryIds.length > 0) {
-      const filtered = blogs.filter(
-        blog =>
-          blog.categories &&
-          blog.categories.some(category =>
-            selectedCategoryIds.includes(category.id)
-          )
-      );
-      setFilteredBlogs(filtered);
-    } else {
-      setFilteredBlogs(blogs);
-    }
-  }, [blogs, selectedCategoryIds]);
+  }, [selectedCategoryIds]);
 
   if (loading) return <div>Loading blogs...</div>;
 
@@ -85,8 +72,8 @@ const Blogs = () => {
         <Button label="Add New Blog Post" onClick={handleAddNewBlog} />
       </div>
       <div className="flex flex-col gap-4">
-        {isNotEmpty(filteredBlogs) ? (
-          filteredBlogs.map(blog => <Card blog={blog} key={blog.id} />)
+        {isNotEmpty(blogs) ? (
+          blogs.map(blog => <Card blog={blog} key={blog.id} />)
         ) : (
           <Typography>
             No blogs available for the selected categories

@@ -6,15 +6,14 @@ module Api
       before_action :load_post!, only: %i[show]
 
       def index
-        posts = Post.includes(:user, :categories, :organization).as_json(
-          include: {
-            user: { only: [:id, :name, :email] },
-            categories: { only: [:id, :name] },
-            organization: { only: [:id, :name] }
-          }
-        )
+        @posts = Post.includes(:categories)
 
-        render status: :ok, json: { posts: posts }
+        if params[:category_ids].present?
+          category_ids = params[:category_ids].split(",").map(&:to_i)
+          @posts = @posts.joins(:categories).where(categories: { id: category_ids }).distinct
+        end
+
+        render json: { posts: @posts.as_json(include: :categories) }
       end
 
       def create
