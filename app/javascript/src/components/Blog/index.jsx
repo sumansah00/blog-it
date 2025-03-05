@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 
+import { Avatar } from "@bigbinary/neetoui";
 import Logger from "js-logger";
+import { Typography } from "neetoui";
 import { useParams } from "react-router-dom";
 
 import postsApi from "apis/post";
@@ -24,12 +26,6 @@ const Blog = () => {
     }
   };
 
-  const handleEdit = blogId => {
-    Logger.info(`Edit clicked for blog ${blogId}`);
-    // You can implement navigation to edit page here
-    // history.push(`/blogs/${blogId}/edit`);
-  };
-
   useEffect(() => {
     fetchBlog();
   }, []);
@@ -39,7 +35,11 @@ const Blog = () => {
   }
 
   if (!blog) {
-    return <div className="p-6">No blog found with this slug.</div>;
+    return (
+      <div className="p-6">
+        <Typography style="body2">No blog found with this slug.</Typography>
+      </div>
+    );
   }
 
   // Format the date
@@ -51,19 +51,64 @@ const Blog = () => {
 
   return (
     <div className="p-6">
-      <article className="flex flex-col gap-4">
-        <header className="flex justify-between">
-          <h1 className="text-2xl font-bold">{blog.title}</h1>
-          <button
-            className="rounded bg-blue-500 px-4 py-2 text-white"
-            onClick={() => handleEdit(blog.id)}
-          >
-            Edit
-          </button>
+      <article className="flex flex-col gap-4 p-4">
+        {/* Categories/Tags at the top */}
+        {blog.categories && blog.categories.length > 0 && (
+          <div className="mb-3 flex flex-wrap gap-2">
+            {blog.categories.map(category => (
+              <span
+                className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-600"
+                key={category.id}
+              >
+                {category.name}
+              </span>
+            ))}
+          </div>
+        )}
+        {/* Title next */}
+        <header>
+          <Typography style="h2" weight="bold">
+            {blog.title}
+          </Typography>
         </header>
-        <div className="text-sm">Published on {formattedDate}</div>
+        {/* Author with image, name and date */}
+        <div className="mt-2 flex items-center gap-3">
+          {blog.user && (
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gray-300">
+                {blog.user.avatar_url ? (
+                  <Avatar
+                    size="medium"
+                    user={{
+                      name: blog.user.name,
+                      imageUrl: blog.user.avatar_url,
+                    }}
+                  />
+                ) : (
+                  <span className="text-sm text-gray-600">
+                    {blog.user.name.charAt(0).toUpperCase()}
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-col">
+                <Typography
+                  className="text-gray-700"
+                  style="body3"
+                  weight="semibold"
+                >
+                  {blog.user.name}
+                </Typography>
+                <Typography className="text-gray-600" style="body3">
+                  Published on {formattedDate}
+                  {blog.organization && ` • ${blog.organization.name}`}
+                </Typography>
+              </div>
+            </div>
+          )}
+        </div>
+        {/* Description at the bottom */}
         <div className="mt-4">
-          <p>{blog.description}</p>
+          <Typography style="body1">{blog.description}</Typography>
         </div>
       </article>
     </div>

@@ -1,4 +1,5 @@
+import CategorySidebar from "./CategorySidebar";
 import Navbar from "./Navbar";
 import PageLoader from "./PageLoader";
 
-export { PageLoader, Navbar };
+export { PageLoader, Navbar, CategorySidebar };

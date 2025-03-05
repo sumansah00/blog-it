@@ -6,7 +6,15 @@ import PropTypes from "prop-types";
 import { useHistory } from "react-router-dom";
 
 const Post = ({ blog }) => {
-  const { title, description, created_at, slug } = blog;
+  const {
+    title,
+    description,
+    created_at,
+    slug,
+    user,
+    categories,
+    organization,
+  } = blog;
   const history = useHistory();
 
   const handleCardClick = () => {
@@ -22,19 +30,53 @@ const Post = ({ blog }) => {
       <Typography className="line-clamp-2 overflow-hidden text-sm text-gray-600">
         {description}
       </Typography>
-      <Typography className="text-xs text-gray-400">
-        {dayjs(created_at).format("D MMMM YYYY")}
-      </Typography>
+      <div className="mt-2 flex items-center justify-between">
+        <div className="flex flex-col">
+          <Typography className="text-xs text-gray-500">
+            Author: {user?.name || "Unknown"}
+          </Typography>
+          <Typography className="text-xs text-gray-500">
+            Organization: {organization?.name || "Unknown"}
+          </Typography>
+        </div>
+        <Typography className="text-xs text-gray-400">
+          {dayjs(created_at).format("D MMMM YYYY")}
+        </Typography>
+      </div>
+      {categories && categories.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1">
+          {categories.map(category => (
+            <span
+              className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-600"
+              key={category.id}
+            >
+              {category.name}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
 
 Post.propTypes = {
   blog: PropTypes.shape({
-    id: PropTypes.number.isRequired,
     title: PropTypes.string.isRequired,
     description: PropTypes.string.isRequired,
-    created_at: PropTypes.string.isRequired,
+    created_at: PropTypes.string,
+    slug: PropTypes.string.isRequired,
+    user: PropTypes.shape({
+      name: PropTypes.string,
+    }),
+    organization: PropTypes.shape({
+      name: PropTypes.string,
+    }),
+    categories: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.number,
+        name: PropTypes.string,
+      })
+    ),
   }).isRequired,
 };
 
