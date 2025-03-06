@@ -5,9 +5,11 @@ import { Button, Typography } from "@bigbinary/neetoui";
 import classNames from "classnames";
 import { useHistory, Link } from "react-router-dom";
 
+import authApi from "apis/auth";
+import { resetAuthTokens } from "apis/axios";
 import CategorySidebar from "components/commons/CategorySidebar";
 import { navLinks } from "constants/navbar";
-import { getFromLocalStorage } from "utils/storage";
+import { getFromLocalStorage, setToLocalStorage } from "utils/storage";
 
 import NavLink from "./Links";
 
@@ -59,6 +61,22 @@ const Navbar = ({ children }) => {
     history.push("/");
   };
 
+  const handleLogout = async () => {
+    try {
+      await authApi.logout();
+      setToLocalStorage({
+        authToken: null,
+        email: null,
+        userId: null,
+        userName: null,
+      });
+      resetAuthTokens();
+      window.location.href = "/";
+    } catch (error) {
+      logger.error(error);
+    }
+  };
+
   return (
     <div className="flex border-r-2 border-black">
       <div className="flex min-h-screen flex-col items-start gap-2 border-r-2 border-gray-200 p-2">
@@ -86,7 +104,10 @@ const Navbar = ({ children }) => {
           style="tertiary"
           onClick={toggleCategorySidebar}
         />
-        <Link className="flex items-center gap-x-1 rounded-md bg-gray-200 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-300 focus:shadow">
+        <Link
+          className="flex items-center gap-x-1 rounded-md bg-gray-200 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-300 focus:shadow"
+          onClick={handleLogout}
+        >
           <span className="block">{userName}</span>
         </Link>
       </div>
