@@ -26,11 +26,11 @@ const Blogs = () => {
   }, [location.search]);
 
   // Fetch blogs with category filtering
+  // TODO: author and organization not fetched. Need to fetch and pass to Card component
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
         setLoading(true);
-        // Pass category IDs to the API
         const response = await postsApi.fetch({
           category_ids:
             selectedCategoryIds.length > 0 ? selectedCategoryIds : null,

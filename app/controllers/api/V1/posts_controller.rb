@@ -17,7 +17,7 @@ module Api
         post.user = User.first # Replace with current_user once authentication is implemented
 
         post.save!
-        render_notice("Post was successfully created")
+        render_notice(t("successfully_created", entity: "Post"))
       end
 
       def show

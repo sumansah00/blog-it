@@ -1,21 +1,36 @@
 import React from "react";
 
+import { either, isEmpty, isNil } from "ramda";
 import { Switch, Route } from "react-router-dom";
 
+import { Signup, Login } from "components/Authentication";
 import Blog from "components/Blog";
 import CreatePost from "components/Blog/Create";
 import Blogs from "components/Blogs";
-import { Navbar } from "components/commons";
+import { Navbar, PrivateRoute } from "components/commons";
+import { getFromLocalStorage } from "utils/storage";
 
-const Main = () => (
-  <Navbar>
+const Main = () => {
+  const authToken = getFromLocalStorage("authToken");
+  const isLoggedIn = !either(isNil, isEmpty)(authToken);
+
+  return (
     <Switch>
-      <Route exact component={Blog} path="/posts/:slug/show" />
-      <Route exact component={CreatePost} path="/create" />
-      <Route exact path="/" render={() => <Blogs />} />
-      <Route exact path="/about" render={() => <div>About</div>} />
+      <Route exact component={Signup} path="/signup" />
+      <Route exact component={Login} path="/login" />
+      <Navbar>
+        <Route exact component={Blog} path="/posts/:slug/show" />
+        <Route exact component={CreatePost} path="/create" />
+        {/* <Route exact path="/" render={() => <Blogs />} /> */}
+        <PrivateRoute
+          component={Blogs}
+          condition={isLoggedIn}
+          path="/"
+          redirectRoute="/login"
+        />
+      </Navbar>
     </Switch>
-  </Navbar>
-);
+  );
+};
 
 export default Main;
