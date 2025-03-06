@@ -4,16 +4,10 @@ module Api
   module V1
     class PostsController < ApplicationController
       before_action :load_post!, only: %i[show]
+      before_action :load_posts_for_index, only: %i[index]
 
       def index
-        @posts = Post.includes(:categories)
-
-        if params[:category_ids].present?
-          category_ids = params[:category_ids].split(",").map(&:to_i)
-          @posts = @posts.joins(:categories).where(categories: { id: category_ids }).distinct
-        end
-
-        render json: { posts: @posts.as_json(include: :categories) }
+        render :index
       end
 
       def create
@@ -27,16 +21,7 @@ module Api
       end
 
       def show
-        render_json(
-          {
-            post: @post.as_json(
-              include: {
-                user: { only: [:id, :name, :email] },
-                categories: { only: [:id, :name] },
-                organization: { only: [:id, :name] }
-              }
-            )
-          })
+        render :show
       end
 
       private
@@ -47,6 +32,10 @@ module Api
 
         def post_params
           params.require(:post).permit(:title, :description, :organization_id, category_ids: [])
+        end
+
+        def load_posts_for_index
+          @posts = Post.includes(:categories)
         end
     end
   end
