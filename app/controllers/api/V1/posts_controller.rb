@@ -12,9 +12,7 @@ module Api
 
       def create
         post = Post.new(post_params)
-        # Assume current_user is set through authentication
-        # If you don't have authentication yet, you can use a placeholder user:
-        post.user = User.first # Replace with current_user once authentication is implemented
+        post.user = current_user
 
         post.save!
         render_notice(t("successfully_created", entity: "Post"))
@@ -35,7 +33,17 @@ module Api
         end
 
         def load_posts_for_index
-          @posts = Post.includes(:categories)
+          @posts = Post.includes(:categories, :user, :organization)
+
+          if params[:category_ids].present?
+
+            category_ids = params[:category_ids].is_a?(String) ?
+                          params[:category_ids].split(",") :
+                          params[:category_ids]
+            @posts = @posts.joins(:categories).where(categories: { id: category_ids }).distinct
+          end
+
+          @posts = @posts.where(organization_id: current_user.organization_id)
         end
     end
   end
