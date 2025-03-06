@@ -3,15 +3,17 @@ import React, { useState } from "react";
 import { HamburgerMenu, Edit, Home, FilterAz } from "@bigbinary/neeto-icons";
 import { Button, Typography } from "@bigbinary/neetoui";
 import classNames from "classnames";
-import { useHistory } from "react-router-dom";
+import { useHistory, Link } from "react-router-dom";
 
 import CategorySidebar from "components/commons/CategorySidebar";
 import { navLinks } from "constants/navbar";
+import { getFromLocalStorage } from "utils/storage";
 
 import NavLink from "./Links";
 
 const Navbar = ({ children }) => {
   const history = useHistory();
+  const userName = getFromLocalStorage("authUserName");
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCategorySidebarOpen, setIsCategorySidebarOpen] = useState(false);
@@ -84,6 +86,9 @@ const Navbar = ({ children }) => {
           style="tertiary"
           onClick={toggleCategorySidebar}
         />
+        <Link className="flex items-center gap-x-1 rounded-md bg-gray-200 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-300 focus:shadow">
+          <span className="block">{userName}</span>
+        </Link>
       </div>
       {/* Main sidebar */}
       <div className={sidebarClasses}>

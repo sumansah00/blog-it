@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 
+import Logger from "js-logger";
+
 import authApi from "apis/auth";
 import { setAuthHeaders } from "apis/axios";
 import LoginForm from "components/Authentication/Form/Login";
@@ -24,7 +26,7 @@ const Login = () => {
       setAuthHeaders();
       window.location.href = "/";
     } catch (error) {
-      logger.error(error);
+      Logger.error(error);
       setLoading(false);
     }
   };

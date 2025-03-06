@@ -74,9 +74,11 @@ class ApplicationController < ActionController::Base
   private
 
     def authenticate_user_using_x_auth_token
+      puts "hello bulbul"
       user_email = request.headers["X-Auth-Email"].presence
       auth_token = request.headers["X-Auth-Token"].presence
-      user = user_email && User.find_by!(email: user_email)
+      user = User.find_by!(email: user_email) if user_email
+      # puts "THis is user -> ", user
       is_valid_token = user && auth_token && ActiveSupport::SecurityUtils.secure_compare(
         user.authentication_token,
         auth_token)
@@ -85,6 +87,7 @@ class ApplicationController < ActionController::Base
       else
         render_error(t("session.could_not_auth"), :unauthorized)
       end
+      puts @current_user
     end
 
     def current_user

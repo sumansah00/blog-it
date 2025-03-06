@@ -21,7 +21,7 @@ const PrivateRoute = ({
     );
   }
 
-  return <Route component={Component} path={path} {...props} />;
+  return <Route exact component={Component} path={path} {...props} />;
 };
 
 PrivateRoute.propTypes = {
