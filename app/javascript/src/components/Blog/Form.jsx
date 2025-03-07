@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-import { Input, Button, Select } from "@bigbinary/neetoui";
+import { Input, Button, Select, Textarea } from "@bigbinary/neetoui";
 import { Formik, Form as FormikForm } from "formik";
 import Logger from "js-logger";
 import * as Yup from "yup";
@@ -134,7 +134,7 @@ const Form = ({
                 );
               }}
             />
-            <Input
+            <Textarea
               error={touched.description && errors.description}
               label="Description*"
               name="description"
