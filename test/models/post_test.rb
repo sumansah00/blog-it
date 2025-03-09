@@ -71,4 +71,49 @@ class PostTest < ActiveSupport::TestCase
     assert_not_nil post.created_at
     assert_not_nil post.updated_at
   end
+
+  # Tests for slug generation
+  test "should generate unique slug" do
+    user = create(:user)
+    organization = user.organization
+
+    post1 = create(:post, title: "Sample Post", user: user, organization: organization)
+    assert_equal "sample-post", post1.slug
+
+    # Create a post with the same title to force a unique slug
+    post2 = create(:post, title: "Sample Post", user: user, organization: organization)
+    assert_equal "sample-post-2", post2.slug
+  end
+
+  test "should increment slug counter correctly" do
+    user = create(:user)
+    organization = user.organization
+
+    # Create posts with the same title to test slug incrementation
+    first_post = create(:post, title: "My Title", user: user, organization: organization)
+    assert_equal "my-title", first_post.slug
+
+    second_post = create(:post, title: "My Title", user: user, organization: organization)
+    assert_equal "my-title-2", second_post.slug
+
+    # Test the slug increment logic by creating one more
+    third_post = create(:post, title: "My Title", user: user, organization: organization)
+    assert_equal "my-title-3", third_post.slug
+  end
+
+  test "should not allow slug to be changed after creation" do
+    post = create(:post)
+    original_slug = post.slug
+
+    # Try to update the slug
+    post.slug = "new-slug"
+    assert_not post.valid?
+
+    # Check if errors contain a message about immutable slug
+    assert_not_empty post.errors[:slug]
+
+    # Make sure slug hasn't changed
+    post.reload
+    assert_equal original_slug, post.slug
+  end
 end
