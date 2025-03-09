@@ -49,8 +49,12 @@ gem "bootsnap", require: false
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ]
+  gem "factory_bot_rails"
   gem "rubocop", require: false
   gem "rubocop-rails", require: false
+
+  # For auto-generating demo data
+  gem "faker"
 end
 
 group :development do
@@ -79,3 +83,5 @@ gem "react-rails", "~> 2.7.1"
 gem "pundit", "~> 2.4"
 
 gem "bcrypt", "~> 3.1.7"
+
+gem "simplecov", require: false, group: :test
