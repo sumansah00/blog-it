@@ -55,7 +55,7 @@ const Navbar = ({ children }) => {
         userName: null,
       });
       resetAuthTokens();
-      window.location.href = "/";
+      history.push("/");
     } catch (error) {
       logger.error(error);
     }

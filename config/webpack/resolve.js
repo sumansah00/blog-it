@@ -11,6 +11,7 @@ module.exports = {
     constants: absolutePath("src/constants"),
     neetocommons: "@bigbinary/neeto-commons-frontend/configs/webpack/resolve",
     neetoui: "@bigbinary/neetoui",
+    neetoicons: "@bigbinary/neeto-icons",
     utils: absolutePath("src/utils"),
   },
   extensions: [

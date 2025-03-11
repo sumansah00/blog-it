@@ -6,6 +6,7 @@ import { Switch, Route } from "react-router-dom";
 import { Signup, Login } from "components/Authentication";
 import Blog from "components/Blog";
 import CreatePost from "components/Blog/Create";
+import EditPost from "components/Blog/Edit";
 import Blogs from "components/Blogs";
 import { Navbar, PrivateRoute } from "components/commons";
 import { getFromLocalStorage } from "utils/storage";
@@ -21,6 +22,7 @@ const Main = () => {
       <Navbar>
         <Route exact component={Blog} path="/posts/:slug/show" />
         <Route exact component={CreatePost} path="/create" />
+        <Route exact component={EditPost} path="/posts/:slug/edit" />
         {/* <Route exact path="/" render={() => <Blogs />} /> */}
         <PrivateRoute
           component={Blogs}

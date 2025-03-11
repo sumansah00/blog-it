@@ -3,7 +3,7 @@
 module Api
   module V1
     class PostsController < ApplicationController
-      before_action :load_post!, only: %i[show]
+      before_action :load_post!, only: %i[show update]
       before_action :load_posts_for_index, only: %i[index]
 
       def index
@@ -20,6 +20,11 @@ module Api
 
       def show
         render :show
+      end
+
+      def update
+        @post.update!(post_params)
+        render_notice(t("successfully_updated", entity: "Post"))
       end
 
       private
