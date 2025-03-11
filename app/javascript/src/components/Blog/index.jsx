@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 
-import { Avatar } from "@bigbinary/neetoui";
 import Logger from "js-logger";
-import { Typography } from "neetoui";
-import { useParams } from "react-router-dom";
+import { Edit } from "neetoicons";
+import { Typography, Button, Avatar } from "neetoui";
+import { useParams, useHistory } from "react-router-dom";
 
 import postsApi from "apis/post";
 import { PageLoader } from "components/commons";
@@ -12,6 +12,7 @@ const Blog = () => {
   const [blog, setBlog] = useState(null);
   const [pageLoading, setPageLoading] = useState(true);
   const { slug } = useParams();
+  const history = useHistory();
 
   const fetchBlog = async () => {
     try {
@@ -29,6 +30,10 @@ const Blog = () => {
   useEffect(() => {
     fetchBlog();
   }, []);
+
+  const handleEdit = () => {
+    history.push(`/posts/${slug}/edit`);
+  };
 
   if (pageLoading) {
     return <PageLoader />;
@@ -66,10 +71,19 @@ const Blog = () => {
           </div>
         )}
         {/* Title next */}
-        <header>
+        <header className="flex items-center justify-between">
           <Typography style="h2" weight="bold">
             {blog.title}
           </Typography>
+          <Button
+            icon={Edit}
+            size="small"
+            tooltipProps={{
+              position: "top",
+              content: "Edit Blog",
+            }}
+            onClick={handleEdit}
+          />
         </header>
         {/* Author with image, name and date */}
         <div className="mt-2 flex items-center gap-3">
