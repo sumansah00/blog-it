@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 
-import { HamburgerMenu, Edit, Home, FilterAz } from "@bigbinary/neeto-icons";
-import { Typography } from "@bigbinary/neetoui";
 import classNames from "classnames";
+import { HamburgerMenu, Edit, Home, FilterAz, Folder } from "neetoicons";
+import { Typography } from "neetoui";
 import { useHistory } from "react-router-dom";
 
 import authApi from "apis/auth";
@@ -30,6 +30,8 @@ const Navbar = ({ children }) => {
     history.push("/");
   };
 
+  const handleMyPostsClick = () => history.push("/my-posts");
+
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const toggleCategorySidebar = () =>
     setIsCategorySidebarOpen(!isCategorySidebarOpen);
@@ -55,7 +57,7 @@ const Navbar = ({ children }) => {
         userName: null,
       });
       resetAuthTokens();
-      window.location.href = "/";
+      history.push("/");
     } catch (error) {
       logger.error(error);
     }
@@ -78,6 +80,7 @@ const Navbar = ({ children }) => {
         <SidebarButton icon={Home} onClick={handleHomeClick} />
         <SidebarButton icon={Edit} onClick={handleEditClick} />
         <SidebarButton icon={FilterAz} onClick={toggleCategorySidebar} />
+        <SidebarButton icon={Folder} onClick={handleMyPostsClick} />
         <UserProfile
           userName={userName}
           {...{ userEmail }}

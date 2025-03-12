@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
 class ApplicationController < ActionController::Base
-  protect_from_forgery
   include Pundit::Authorization
+
+  protect_from_forgery
 
   rescue_from StandardError, with: :handle_api_exception
   before_action :authenticate_user_using_x_auth_token
+  rescue_from Pundit::NotAuthorizedError, with: :handle_authorization_error
 
   def handle_api_exception(exception)
     case exception
@@ -73,12 +75,14 @@ class ApplicationController < ActionController::Base
 
   private
 
+    def handle_authorization_error
+      render_error(t("authorization.denied"), :forbidden)
+    end
+
     def authenticate_user_using_x_auth_token
-      puts "hello bulbul"
       user_email = request.headers["X-Auth-Email"].presence
       auth_token = request.headers["X-Auth-Token"].presence
       user = User.find_by!(email: user_email) if user_email
-      # puts "THis is user -> ", user
       is_valid_token = user && auth_token && ActiveSupport::SecurityUtils.secure_compare(
         user.authentication_token,
         auth_token)
@@ -87,7 +91,6 @@ class ApplicationController < ActionController::Base
       else
         render_error(t("session.could_not_auth"), :unauthorized)
       end
-      puts @current_user
     end
 
     def current_user
