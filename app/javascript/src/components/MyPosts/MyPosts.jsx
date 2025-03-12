@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 import { MenuHorizontal, Delete, Clock } from "neetoicons";
-import { Dropdown, Table } from "neetoui";
+import { Dropdown, Table, Typography } from "neetoui";
 
 import postsApi from "apis/post";
 
@@ -132,7 +132,10 @@ const MyPosts = () => {
 
   return (
     <div>
-      <h1>My Posts</h1>
+      <Typography style="h1">My Posts</Typography>
+      <Typography className="mb-6" style="body2" weight="bold">
+        {posts.length} articles
+      </Typography>
       <Table
         bordered
         enableColumnResize
