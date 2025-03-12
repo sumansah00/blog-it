@@ -3,13 +3,14 @@ import React, { useEffect, useState } from "react";
 import Logger from "js-logger";
 import { Edit } from "neetoicons";
 import { Typography, Button, Avatar } from "neetoui";
+import PropTypes from "prop-types";
 import { useParams, useHistory } from "react-router-dom";
 
 import postsApi from "apis/post";
 import { PageLoader } from "components/commons";
 import { getFromLocalStorage } from "utils/storage";
 
-const Blog = () => {
+const Blog = ({ previewData }) => {
   const [blog, setBlog] = useState(null);
   const [pageLoading, setPageLoading] = useState(true);
   const [isAuthor, setIsAuthor] = useState(false);
@@ -38,6 +39,13 @@ const Blog = () => {
   };
 
   useEffect(() => {
+    if (previewData) {
+      setBlog(previewData);
+      setPageLoading(false);
+
+      return;
+    }
+
     fetchBlog();
   }, []);
 
@@ -144,6 +152,10 @@ const Blog = () => {
       </article>
     </div>
   );
+};
+
+Blog.propTypes = {
+  previewData: PropTypes.object,
 };
 
 export default Blog;

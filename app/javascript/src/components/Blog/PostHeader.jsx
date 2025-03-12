@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { MenuHorizontal, Delete } from "neetoicons";
+import { MenuHorizontal, Delete, ExternalLink } from "neetoicons";
 import { ActionDropdown, Button, Dropdown } from "neetoui";
 import PropTypes from "prop-types";
 import { useHistory } from "react-router-dom";
@@ -19,6 +19,7 @@ const PostHeader = ({
   onPublish,
   onDelete,
   isSubmitting,
+  onPreview,
 }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [label, setLabel] = useState(labels.draft);
@@ -69,6 +70,7 @@ const PostHeader = ({
           <h1 className="ml-4 text-xl font-bold">{title}</h1>
         </div>
         <div className="flex items-center gap-2">
+          <Button icon={ExternalLink} style="secondary" onClick={onPreview} />
           <Button label="Cancel" style="secondary" onClick={handleCancel} />
           <ActionDropdown
             buttonStyle="primary"
@@ -128,6 +130,7 @@ PostHeader.propTypes = {
   onPublish: PropTypes.func.isRequired,
   onDelete: PropTypes.func,
   isSubmitting: PropTypes.bool,
+  onPreview: PropTypes.func.isRequired,
 };
 
 export default PostHeader;

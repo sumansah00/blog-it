@@ -70,6 +70,20 @@ const Edit = ({ history, match }) => {
     }
   };
 
+  const handlePreview = () => {
+    if (formValues) {
+      const previewData = {
+        ...post,
+        ...formValues,
+        last_published_at: post.last_published_at,
+        created_at: post.created_at,
+      };
+
+      const queryParams = encodeURIComponent(JSON.stringify(previewData));
+      window.open(`/posts/preview?data=${queryParams}`, "_blank");
+    }
+  };
+
   if (fetchingPost) {
     return <div>Loading...</div>;
   }
@@ -81,6 +95,7 @@ const Edit = ({ history, match }) => {
         isSubmitting={loading}
         title="Edit Post"
         onDelete={handleDelete}
+        onPreview={handlePreview}
         onPublish={handlePublish}
         onSaveAsDraft={handleSaveAsDraft}
       />

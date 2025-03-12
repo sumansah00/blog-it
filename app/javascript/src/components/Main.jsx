@@ -5,8 +5,9 @@ import { Switch, Route } from "react-router-dom";
 
 import { Signup, Login } from "components/Authentication";
 import Blog from "components/Blog";
-import CreatePost from "components/Blog/Create";
-import EditPost from "components/Blog/Edit";
+import BlogCreate from "components/Blog/Create";
+import BlogEdit from "components/Blog/Edit";
+import BlogPreview from "components/Blog/Preview";
 import Blogs from "components/Blogs";
 import { Navbar, PrivateRoute } from "components/commons";
 import MyPosts from "components/MyPosts/MyPosts";
@@ -20,10 +21,11 @@ const Main = () => {
     <Switch>
       <Route exact component={Signup} path="/signup" />
       <Route exact component={Login} path="/login" />
+      <Route exact component={BlogPreview} path="/posts/preview" />
       <Navbar>
         <Route exact component={Blog} path="/posts/:slug/show" />
-        <Route exact component={CreatePost} path="/create" />
-        <Route exact component={EditPost} path="/posts/:slug/edit" />
+        <Route exact component={BlogCreate} path="/create" />
+        <Route exact component={BlogEdit} path="/posts/:slug/edit" />
         <PrivateRoute
           component={MyPosts}
           condition={isLoggedIn}
