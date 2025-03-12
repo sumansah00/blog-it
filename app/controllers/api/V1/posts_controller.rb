@@ -59,9 +59,10 @@ module Api
 
           if params[:filter] == "my_posts"
             @posts = @posts.where(user_id: current_user.id)
+          else
+            @posts = @posts.where(status: "published")
           end
 
-          # existing category filtering
           if params[:category_ids].present?
             category_ids = params[:category_ids].is_a?(String) ?
                           params[:category_ids].split(",") :
