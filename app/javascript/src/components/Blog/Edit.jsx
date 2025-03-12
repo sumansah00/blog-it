@@ -89,7 +89,7 @@ const Edit = ({ history, match }) => {
           <Form
             category_ids={post.categories.map(category => category.id) || []}
             description={post.description}
-            handleSubmit={() => {}}
+            handleSubmit={values => handleSubmit(values)} // Pass handleSubmit
             loading={loading}
             organization_id={post.organization.id}
             title={post.title}

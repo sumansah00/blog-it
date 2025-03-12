@@ -24,6 +24,7 @@ const Form = ({
   category_ids: initialCategoryIds = [],
   loading,
   handleSubmit,
+  onChange,
 }) => {
   const [organizations, setOrganizations] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -70,6 +71,11 @@ const Form = ({
         isSubmitting,
         setFieldValue,
       }) => {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        React.useEffect(() => {
+          onChange(values);
+        }, [values]);
+
         // Find the selected organization option
         const selectedOrganization = organizations.find(
           org => org.id === values.organization_id
