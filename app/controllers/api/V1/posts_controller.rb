@@ -44,7 +44,13 @@ module Api
         end
 
         def post_params
-          params.require(:post).permit(:title, :description, :organization_id, category_ids: [])
+          params.require(:post).permit(
+            :title,
+            :description,
+            :organization_id,
+            :status,
+            category_ids: []
+          )
         end
 
         def load_posts_for_index
