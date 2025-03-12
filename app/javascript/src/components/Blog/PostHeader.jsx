@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 
-import { Delete } from "@bigbinary/neeto-icons";
-import { ActionDropdown, Button } from "neetoui";
+import { MenuHorizontal, Delete } from "neetoicons";
+import { ActionDropdown, Button, Dropdown } from "neetoui";
 import PropTypes from "prop-types";
+import { useHistory } from "react-router-dom";
 
 import DeletePostModal from "./DeletePostModal";
 
@@ -22,6 +23,8 @@ const PostHeader = ({
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [label, setLabel] = useState(labels.draft);
   const [selectedAction, setSelectedAction] = useState("draft");
+
+  const history = useHistory();
 
   const {
     Menu,
@@ -55,6 +58,10 @@ const PostHeader = ({
     }
   };
 
+  const handleCancel = () => {
+    history.goBack();
+  };
+
   return (
     <div className="mb-6">
       <div className="flex items-center justify-between py-4">
@@ -62,14 +69,7 @@ const PostHeader = ({
           <h1 className="ml-4 text-xl font-bold">{title}</h1>
         </div>
         <div className="flex items-center gap-2">
-          {isEdit && (
-            <Button
-              className="mr-2"
-              icon={Delete}
-              style="danger"
-              onClick={handleDelete}
-            />
-          )}
+          <Button label="Cancel" style="secondary" onClick={handleCancel} />
           <ActionDropdown
             buttonStyle="primary"
             disabled={isSubmitting}
@@ -95,6 +95,19 @@ const PostHeader = ({
               </MenuItemButton>
             </Menu>
           </ActionDropdown>
+          {isEdit && (
+            <Dropdown icon={MenuHorizontal}>
+              <Menu>
+                <MenuItemButton
+                  icon={Delete}
+                  style="danger"
+                  onClick={handleDelete}
+                >
+                  Delete
+                </MenuItemButton>
+              </Menu>
+            </Dropdown>
+          )}
         </div>
       </div>
       {showDeleteModal && (
