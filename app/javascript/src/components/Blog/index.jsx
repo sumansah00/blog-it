@@ -7,10 +7,13 @@ import { useParams, useHistory } from "react-router-dom";
 
 import postsApi from "apis/post";
 import { PageLoader } from "components/commons";
+import { getFromLocalStorage } from "utils/storage";
 
 const Blog = () => {
   const [blog, setBlog] = useState(null);
   const [pageLoading, setPageLoading] = useState(true);
+  const [isAuthor, setIsAuthor] = useState(false);
+
   const { slug } = useParams();
   const history = useHistory();
 
@@ -20,6 +23,13 @@ const Blog = () => {
         data: { post },
       } = await postsApi.show(slug);
       setBlog(post);
+
+      // Check if current user is the author
+      const currentUserId = getFromLocalStorage("authUserId");
+      setIsAuthor(
+        currentUserId && post.user && post.user.id === parseInt(currentUserId)
+      );
+
       setPageLoading(false);
     } catch (error) {
       Logger.error("Failed to fetch blog:", error);
@@ -47,8 +57,9 @@ const Blog = () => {
     );
   }
 
-  // Format the date
-  const formattedDate = new Date(blog.created_at).toLocaleDateString("en-US", {
+  // Format the date (use last_published_at if available, otherwise use created_at)
+  const dateToDisplay = blog.last_published_at || blog.created_at;
+  const formattedDate = new Date(dateToDisplay).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -75,15 +86,21 @@ const Blog = () => {
           <Typography style="h2" weight="bold">
             {blog.title}
           </Typography>
-          <Button
-            icon={Edit}
-            size="small"
-            tooltipProps={{
-              position: "top",
-              content: "Edit Blog",
-            }}
-            onClick={handleEdit}
-          />
+          <Typography className="text-gray-600" style="body3">
+            {formattedDate}{" "}
+            {blog.last_published_at ? "(published)" : "(created)"}
+          </Typography>
+          {isAuthor && (
+            <Button
+              icon={Edit}
+              size="small"
+              tooltipProps={{
+                position: "top",
+                content: "Edit Blog",
+              }}
+              onClick={handleEdit}
+            />
+          )}{" "}
         </header>
         {/* Author with image, name and date */}
         <div className="mt-2 flex items-center gap-3">
