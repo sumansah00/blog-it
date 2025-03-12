@@ -9,6 +9,7 @@ import CreatePost from "components/Blog/Create";
 import EditPost from "components/Blog/Edit";
 import Blogs from "components/Blogs";
 import { Navbar, PrivateRoute } from "components/commons";
+import MyPosts from "components/MyPosts/MyPosts";
 import { getFromLocalStorage } from "utils/storage";
 
 const Main = () => {
@@ -23,7 +24,12 @@ const Main = () => {
         <Route exact component={Blog} path="/posts/:slug/show" />
         <Route exact component={CreatePost} path="/create" />
         <Route exact component={EditPost} path="/posts/:slug/edit" />
-        {/* <Route exact path="/" render={() => <Blogs />} /> */}
+        <PrivateRoute
+          component={MyPosts}
+          condition={isLoggedIn}
+          path="/my-posts"
+          redirectRoute="/login"
+        />
         <PrivateRoute
           component={Blogs}
           condition={isLoggedIn}

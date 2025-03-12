@@ -55,14 +55,20 @@ module Api
 
         def load_posts_for_index
           @posts = policy_scope(Post)
+          @posts = @posts.includes(:categories, :user, :organization)
 
-          @posts.includes(:categories, :user, :organization)
+          if params[:filter] == "my_posts"
+            @posts = @posts.where(user_id: current_user.id)
+          end
 
+          # existing category filtering
           if params[:category_ids].present?
             category_ids = params[:category_ids].is_a?(String) ?
                           params[:category_ids].split(",") :
                           params[:category_ids]
-            @posts = @posts.joins(:categories).where(categories: { id: category_ids }).distinct
+            @posts = @posts.joins(:categories)
+              .where(categories: { id: category_ids })
+              .distinct
           end
         end
     end
