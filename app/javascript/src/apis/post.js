@@ -24,7 +24,7 @@ const update = (slug, payload) =>
 
 const destroy = slug => axios.delete(`/posts/${slug}`);
 
-const list = (params = {}) => axios.get("/posts", { params });
+const list = (params = {}) => axios.get("/posts/my_post", { params });
 
 const postsApi = {
   fetch,

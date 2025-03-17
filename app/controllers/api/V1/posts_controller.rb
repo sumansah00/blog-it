@@ -3,12 +3,18 @@
 module Api
   module V1
     class PostsController < ApplicationController
-      after_action :verify_authorized, except: %i[index create]
+      after_action :verify_authorized, except: %i[index create my_post]
       after_action :verify_policy_scoped, only: %i[index]
       before_action :load_post!, only: %i[show update destroy]
-      before_action :load_posts_for_index, only: %i[index]
+      before_action :load_posts_for_index, only: %i[index my_post]
 
       def index
+        filter_columns_for_posts if params[:visible_columns].present?
+        render :index
+      end
+
+      def my_post
+        puts "--------------->"
         render :index
       end
 
@@ -70,6 +76,27 @@ module Api
             @posts = @posts.joins(:categories)
               .where(categories: { id: category_ids })
               .distinct
+          end
+        end
+
+        def filter_columns_for_posts
+          # Always keep the title column
+          visible_columns = params[:visible_columns].split(",")
+          visible_columns << "title" unless visible_columns.include?("title")
+
+          # Map the posts to include only the visible columns
+          @posts = @posts.map do |post|
+            filtered_post = { id: post.id, slug: post.slug }
+
+            # Always include title
+            filtered_post[:title] = post.title
+
+            # Include other columns based on visibility
+            filtered_post[:categories] = post.categories if visible_columns.include?("categories")
+            filtered_post[:last_published_at] = post.last_published_at if visible_columns.include?("last_published_at")
+            filtered_post[:status] = post.status if visible_columns.include?("status")
+
+            filtered_post
           end
         end
     end
