@@ -1,48 +1,36 @@
 import React, { useState, useEffect } from "react";
 
-import { Input, Button, Select, Textarea } from "@bigbinary/neetoui";
+import { Input, Select, Textarea } from "@bigbinary/neetoui";
 import { Formik, Form as FormikForm } from "formik";
 import Logger from "js-logger";
 import * as Yup from "yup";
 
 import categoriesApi from "apis/category";
-import organizationsApi from "apis/organization";
 
 const validationSchema = Yup.object().shape({
   title: Yup.string()
     .max(50, "Title cannot exceed 50 characters")
     .required("Title is required"),
   description: Yup.string().required("Description is required"),
-  organization_id: Yup.number().required("Organization is required"),
   category_ids: Yup.array().min(1, "Select at least one category"),
 });
 
 const Form = ({
   title: initialTitle = "",
   description: initialDescription = "",
-  organization_id: initialOrganizationId = "",
   category_ids: initialCategoryIds = [],
-  loading,
   handleSubmit,
   onChange,
 }) => {
-  const [organizations, setOrganizations] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [loadingData, setLoadingData] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [organizationsResponse, categoriesResponse] = await Promise.all([
-          organizationsApi.fetch(),
-          categoriesApi.fetch(),
-        ]);
-        setOrganizations(organizationsResponse.data.organizations);
+        const categoriesResponse = await categoriesApi.fetch();
         setCategories(categoriesResponse.data.categories);
       } catch (error) {
-        Logger.error("Failed to fetch form data:", error);
-      } finally {
-        setLoadingData(false);
+        Logger.error("Failed to fetch categories:", error);
       }
     };
 
@@ -55,7 +43,6 @@ const Form = ({
       initialValues={{
         title: initialTitle,
         description: initialDescription,
-        organization_id: initialOrganizationId,
         category_ids: initialCategoryIds,
       }}
       onSubmit={values => {
@@ -68,18 +55,12 @@ const Form = ({
         touched,
         handleChange,
         handleBlur,
-        isSubmitting,
         setFieldValue,
       }) => {
         // eslint-disable-next-line react-hooks/rules-of-hooks
         React.useEffect(() => {
           onChange(values);
         }, [values]);
-
-        // Find the selected organization option
-        const selectedOrganization = organizations.find(
-          org => org.id === values.organization_id
-        );
 
         // Find the selected category options
         const selectedCategories = categories.filter(category =>
@@ -97,27 +78,6 @@ const Form = ({
               value={values.title}
               onBlur={handleBlur}
               onChange={handleChange}
-            />
-            <Select
-              error={touched.organization_id && errors.organization_id}
-              label="Organization*"
-              name="organization_id"
-              placeholder="Select an organization"
-              options={organizations.map(org => ({
-                value: org.id,
-                label: org.name,
-              }))}
-              value={
-                selectedOrganization
-                  ? {
-                      value: selectedOrganization.id,
-                      label: selectedOrganization.name,
-                    }
-                  : null
-              }
-              onChange={selectedOption => {
-                setFieldValue("organization_id", selectedOption.value);
-              }}
             />
             <Select
               isMulti
@@ -148,11 +108,6 @@ const Form = ({
               value={values.description}
               onBlur={handleBlur}
               onChange={handleChange}
-            />
-            <Button
-              label="Submit"
-              loading={loading || isSubmitting || loadingData}
-              type="submit"
             />
           </FormikForm>
         );

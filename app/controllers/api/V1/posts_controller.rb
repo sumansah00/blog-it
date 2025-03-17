@@ -3,8 +3,8 @@
 module Api
   module V1
     class PostsController < ApplicationController
-      after_action :verify_authorized, except: :index
-      after_action :verify_policy_scoped, only: :index
+      after_action :verify_authorized, except: %i[index create]
+      after_action :verify_policy_scoped, only: %i[index]
       before_action :load_post!, only: %i[show update destroy]
       before_action :load_posts_for_index, only: %i[index]
 
@@ -15,6 +15,7 @@ module Api
       def create
         post = Post.new(post_params)
         post.user = current_user
+        post.organization = current_user.organization
 
         post.save!
         render_notice(t("successfully_created", entity: "Post"))
@@ -47,7 +48,6 @@ module Api
           params.require(:post).permit(
             :title,
             :description,
-            :organization_id,
             :status,
             category_ids: []
           )

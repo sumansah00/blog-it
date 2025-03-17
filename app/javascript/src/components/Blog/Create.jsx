@@ -70,7 +70,7 @@ const Create = ({ history }) => {
       <div className="flex flex-col gap-y-8">
         <Form
           handleSubmit={() => {}} // Form submission will be handled by header buttons
-          loading={loading}
+          // loading={loading}
           onChange={handleFormChange}
         />
       </div>
