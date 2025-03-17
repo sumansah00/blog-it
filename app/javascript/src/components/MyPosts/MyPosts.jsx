@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 
 import { MenuHorizontal, Delete, Clock } from "neetoicons";
 import { Dropdown, Table, Typography } from "neetoui";
+import { useHistory } from "react-router-dom";
 
 import postsApi from "apis/post";
 
@@ -13,6 +14,7 @@ const MyPosts = () => {
 
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const history = useHistory();
 
   const handleDelete = async slug => {
     try {
@@ -44,13 +46,24 @@ const MyPosts = () => {
     }
   };
 
+  const handleTitleClick = slug => {
+    history.push(`/posts/${slug}/show`);
+  };
+
   const columnData = [
     {
       title: "Title",
       dataIndex: "title",
       key: "title",
       width: 250,
-      render: title => title.substring(0, 50),
+      render: (title, post) => (
+        <span
+          className="cursor-pointer text-blue-600 hover:text-blue-800 hover:underline"
+          onClick={() => handleTitleClick(post.slug)}
+        >
+          {title.substring(0, 50)}
+        </span>
+      ),
     },
     {
       title: "Category",
