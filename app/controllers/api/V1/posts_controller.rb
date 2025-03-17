@@ -14,8 +14,7 @@ module Api
       end
 
       def my_post
-        puts "--------------->"
-        render :index
+        render :my_post
       end
 
       def create
