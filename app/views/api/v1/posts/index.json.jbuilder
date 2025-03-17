@@ -9,10 +9,16 @@ json.posts @posts do |post|
     :created_at,
     :updated_at,
     :slug,
-    :user_id,
-    :organization_id,
     :status,
     :last_published_at
+
+  json.user do
+    json.extract! post.user, :id, :name
+  end
+
+  json.organization do
+    json.extract! post.organization, :id, :name
+  end
 
   json.categories post.categories do |category|
     json.extract! category,
