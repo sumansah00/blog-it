@@ -83,9 +83,9 @@ const MyPosts = () => {
       render: (title, post) => (
         <span
           className="cursor-pointer text-blue-600 hover:text-blue-800 hover:underline"
-          onClick={() => handleTitleClick(post.slug)}
+          onClick={() => handleTitleClick(post?.slug)}
         >
-          {title.substring(0, 50)}
+          {(title || "Untitled").substring(0, 50)}
         </span>
       ),
     },
@@ -94,8 +94,16 @@ const MyPosts = () => {
       dataIndex: "categories",
       key: "categories",
       width: 200,
-      render: categories =>
-        categories.map(category => category.name).join(", "),
+      render: categories => {
+        if (!categories || !Array.isArray(categories)) return "-";
+
+        return (
+          categories
+            .filter(category => category && category.name)
+            .map(category => category.name)
+            .join(", ") || "-"
+        );
+      },
       hidden: !visibleColumns.categories,
     },
     {
@@ -103,7 +111,16 @@ const MyPosts = () => {
       dataIndex: "last_published_at",
       key: "last_published_at",
       width: 150,
-      render: date => (date ? new Date(date).toLocaleDateString() : "-"),
+      render: date => {
+        if (!date) return "-";
+        try {
+          return new Date(date).toLocaleDateString();
+        } catch (error) {
+          logger.error("Invalid date format:", error);
+
+          return "-";
+        }
+      },
       hidden: !visibleColumns.last_published_at,
     },
     {
@@ -111,53 +128,60 @@ const MyPosts = () => {
       dataIndex: "status",
       key: "status",
       width: 100,
-      render: status => status.charAt(0).toUpperCase() + status.slice(1),
+      render: status => {
+        if (!status) return "-";
+
+        return status.charAt(0).toUpperCase() + status.slice(1);
+      },
       hidden: !visibleColumns.status,
     },
     {
       key: "actions",
       width: 150,
       hidden: !visibleColumns.actions,
-      render: (_, post) => (
-        <Dropdown
-          buttonStyle="secondary"
-          icon={MenuHorizontal}
-          strategy="fixed"
-        >
-          <Menu>
-            {post.status === "published" && (
+      render: (_, post) => {
+        if (!post || !post.slug) return null;
+
+        return (
+          <Dropdown
+            buttonStyle="secondary"
+            icon={MenuHorizontal}
+            strategy="fixed"
+          >
+            <Menu>
+              {post.status === "published" && (
+                <MenuItemButton
+                  icon={Clock}
+                  onClick={() => handleUnpublish(post.slug)}
+                >
+                  Unpublish
+                </MenuItemButton>
+              )}
+              {post.status === "draft" && (
+                <MenuItemButton
+                  icon={Clock}
+                  onClick={() => handlePublish(post.slug)}
+                >
+                  Publish
+                </MenuItemButton>
+              )}
               <MenuItemButton
-                icon={Clock}
-                onClick={() => handleUnpublish(post.slug)}
+                icon={Delete}
+                style="danger"
+                onClick={() => handleDelete(post.slug)}
               >
-                Unpublish
+                Delete
               </MenuItemButton>
-            )}
-            {post.status === "draft" && (
-              <MenuItemButton
-                icon={Clock}
-                onClick={() => handlePublish(post.slug)}
-              >
-                Publish
-              </MenuItemButton>
-            )}
-            <MenuItemButton
-              icon={Delete}
-              style="danger"
-              onClick={() => handleDelete(post.slug)}
-            >
-              Delete
-            </MenuItemButton>
-          </Menu>
-        </Dropdown>
-      ),
+            </Menu>
+          </Dropdown>
+        );
+      },
     },
   ];
 
   const fetchPosts = async (columns = visibleColumns) => {
     try {
       setLoading(true);
-      // Convert visible columns object to array of visible column keys
       const visibleColumnsList = Object.entries(columns)
         .filter(([_, isVisible]) => isVisible)
         .map(([columnKey]) => columnKey);
@@ -166,9 +190,20 @@ const MyPosts = () => {
         filter: "my_posts",
         visible_columns: visibleColumnsList.join(","),
       });
-      setPosts(response.data.posts || []);
+
+      // Validate and sanitize the response data
+      const sanitizedPosts = (response?.data?.posts || []).map(post => ({
+        ...post,
+        categories: Array.isArray(post.categories) ? post.categories : [],
+        title: post.title || "Untitled",
+        status: post.status || "draft",
+        id: post.id || Math.random().toString(36).substr(2, 9), // Fallback ID if needed
+      }));
+
+      setPosts(sanitizedPosts);
     } catch (error) {
       logger.error("Error fetching posts:", error);
+      setPosts([]); // Set empty array on error
     } finally {
       setLoading(false);
     }
@@ -188,10 +223,9 @@ const MyPosts = () => {
       }}
     >
       <Menu>
-        {columnData.map(column => {
-          if (!column.key) return null;
-
-          return (
+        {columnData
+          .filter(column => column && column.key)
+          .map(column => (
             <div className="p-2" key={column.key}>
               <Checkbox
                 checked={visibleColumns[column.key]}
@@ -201,8 +235,7 @@ const MyPosts = () => {
                 onChange={() => handleColumnToggle(column.key)}
               />
             </div>
-          );
-        })}
+          ))}
       </Menu>
     </Dropdown>
   );
@@ -223,7 +256,7 @@ const MyPosts = () => {
       <Table
         bordered
         enableColumnResize
-        columnData={columnData.filter(column => !column.hidden)}
+        columnData={columnData.filter(column => column && !column.hidden)}
         defaultPageSize={10}
         loading={loading}
         rowData={posts}
