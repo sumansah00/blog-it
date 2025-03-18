@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 
-import { MenuHorizontal, Delete, Clock, Column } from "neetoicons";
-import { Dropdown, Table, Typography, Checkbox } from "neetoui";
+import { MenuHorizontal, Delete, Clock, Column, Filter } from "neetoicons";
+import { Dropdown, Table, Typography, Checkbox, Button } from "neetoui";
 import { useHistory } from "react-router-dom";
 
 import postsApi from "apis/post";
+
+import FilterPane from "./FilterPane";
 
 const MyPosts = () => {
   const {
@@ -14,6 +16,7 @@ const MyPosts = () => {
 
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isFilterPaneOpen, setIsFilterPaneOpen] = useState(false);
   const [visibleColumns, setVisibleColumns] = useState({
     title: true,
     categories: true,
@@ -72,6 +75,16 @@ const MyPosts = () => {
 
   const handleTitleClick = slug => {
     history.push(`/posts/${slug}/show`);
+  };
+
+  const handleFilter = () => {
+    setIsFilterPaneOpen(true);
+  };
+
+  const handleApplyFilter = filters => {
+    logger.info("Applying filters:", filters);
+    // Implement your filter logic here
+    // You might want to pass these filters to your fetchPosts function
   };
 
   const columnData = [
@@ -241,7 +254,7 @@ const MyPosts = () => {
   );
 
   return (
-    <div>
+    <div className="max-w-full overflow-auto">
       <div className="mb-6 flex items-center justify-between">
         <div>
           <Typography style="h1">My Posts</Typography>
@@ -251,6 +264,7 @@ const MyPosts = () => {
         </div>
         <div>
           <ColumnFilterMenu />
+          <Button icon={Filter} style="tertiary" onClick={handleFilter} />
         </div>
       </div>
       <Table
@@ -268,6 +282,11 @@ const MyPosts = () => {
             logger.info("Selected Row Keys:", selectedRowKeys);
           },
         }}
+      />
+      <FilterPane
+        isOpen={isFilterPaneOpen}
+        onApplyFilter={handleApplyFilter}
+        onClose={() => setIsFilterPaneOpen(false)}
       />
     </div>
   );
