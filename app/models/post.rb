@@ -50,7 +50,7 @@ class Post < ApplicationRecord
     end
 
     def update_last_published_at
-      self.last_published_at = Time.current if published? && status_changed_to_published?
+      self.last_published_at = Time.current if status_changed_to_published?
     end
 
     def status_changed_to_published?
