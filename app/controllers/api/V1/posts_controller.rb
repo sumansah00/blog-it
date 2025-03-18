@@ -19,11 +19,7 @@ module Api
       end
 
       def create
-        post = Post.new(post_params)
-        post.user = current_user
-        post.organization = current_user.organization
-
-        post.save!
+        post = Posts::CreatorService.call(current_user, params)
         render_notice(t("successfully_created", entity: "Post"))
       end
 
@@ -62,17 +58,7 @@ module Api
         def base_posts_query
           posts = policy_scope(Post)
           posts = posts.includes(:categories, :user, :organization)
-
-          if params[:category_ids].present?
-            category_ids = params[:category_ids].is_a?(String) ?
-                          params[:category_ids].split(",") :
-                          params[:category_ids]
-            posts = posts.joins(:categories)
-              .where(categories: { id: category_ids })
-              .distinct
-          end
-
-          posts
+          Posts::FilterService.call(posts, params)
         end
 
         def load_posts_for_index
@@ -83,37 +69,10 @@ module Api
         def load_posts_for_my_post
           @posts = base_posts_query
           @posts = @posts.where(user_id: current_user.id)
-
-          # Add title filter
-          if params[:title].present?
-            @posts = @posts.where("title LIKE ?", "%#{params[:title]}%")
-          end
-
-          # Add status filter
-          if params[:status].present?
-            @posts = @posts.where(status: params[:status])
-          end
         end
 
         def filter_columns_for_posts
-          # Always keep the title column
-          visible_columns = params[:visible_columns].split(",")
-          visible_columns << "title" unless visible_columns.include?("title")
-
-          # Map the posts to include only the visible columns
-          @posts = @posts.map do |post|
-            filtered_post = { id: post.id, slug: post.slug }
-
-            # Always include title
-            filtered_post[:title] = post.title
-
-            # Include other columns based on visibility
-            filtered_post[:categories] = post.categories if visible_columns.include?("categories")
-            filtered_post[:last_published_at] = post.last_published_at if visible_columns.include?("last_published_at")
-            filtered_post[:status] = post.status if visible_columns.include?("status")
-
-            filtered_post
-          end
+          @posts = Posts::ColumnFilterService.call(@posts, params[:visible_columns])
         end
     end
   end
