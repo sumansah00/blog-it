@@ -3,7 +3,7 @@
 module Api
   module V1
     class PostsController < ApplicationController
-      after_action :verify_authorized, except: %i[index create my_post]
+      after_action :verify_authorized, except: %i[index create my_post bulk_delete bulk_update_status]
       after_action :verify_policy_scoped, only: %i[index]
       before_action :load_post!, only: %i[show update destroy]
       before_action :load_posts_for_index, only: %i[index]
@@ -38,6 +38,31 @@ module Api
         authorize @post
         @post.destroy
         render_notice(t("successfully_deleted", entity: "Post"))
+      end
+
+      def bulk_delete
+        posts = Post.where(id: params[:post_ids])
+        authorized_posts = posts.select { |post| post.user_id == current_user.id }
+
+        if authorized_posts.any?
+          Post.where(id: authorized_posts.map(&:id)).destroy_all
+          render_notice(t("successfully_deleted", entity: "Posts"))
+        else
+          render_error(t("not_found", entity: "Posts"))
+        end
+      end
+
+      def bulk_update_status
+        posts = Post.where(id: params[:post_ids])
+        authorized_posts = posts.select { |post| post.user_id == current_user.id }
+
+        if authorized_posts.any? && params[:status].present?
+          Post.where(id: authorized_posts.map(&:id))
+            .update_all(status: params[:status])
+          render_notice(t("successfully_updated", entity: "Posts status"))
+        else
+          render_error(t("not_found", entity: "Posts"))
+        end
       end
 
       private

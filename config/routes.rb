@@ -8,6 +8,8 @@ Rails.application.routes.draw do
         resources :posts, except: %i[new edit], param: :slug do
           collection do
             get :my_post
+            delete :bulk_delete
+            put :bulk_update_status
           end
         end
         resources :categories, only: %i[index create]
