@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 
 import { Table } from "neetoui";
+import { isNotEmpty } from "ramda";
 import { useHistory } from "react-router-dom";
 
 import FilterPane from "./FilterPane";
@@ -11,6 +12,7 @@ import usePostsManager from "../../hooks/usePostsManager";
 
 const MyPosts = () => {
   const [isFilterPaneOpen, setIsFilterPaneOpen] = useState(false);
+  const [selectedRows, setSelectedRows] = useState([]);
   const history = useHistory();
   const {
     posts,
@@ -36,6 +38,12 @@ const MyPosts = () => {
     });
   };
 
+  const handleRowSelection = (selectedRowKeys, selectedRows) => {
+    setSelectedRows(selectedRowKeys);
+    // You can also access the full selected row data from selectedRows parameter
+    logger.info("Selected rows:", selectedRows);
+  };
+
   const columnData = getColumnConfig({
     visibleColumns,
     onNavigate: slug => history.push(`/posts/${slug}/show`),
@@ -50,24 +58,24 @@ const MyPosts = () => {
         columnData={columnData}
         handleOpenFilterPane={() => setIsFilterPaneOpen(true)}
         handleToggleColumnVisibility={handleToggleColumnVisibility}
-        postsCount={posts.length}
+        selectedRowsCount={selectedRows.length}
         visibleColumns={visibleColumns}
+        postsCount={
+          isNotEmpty(selectedRows) ? selectedRows.length : posts.length
+        }
       />
       <Table
         bordered
         enableColumnResize
+        rowSelection
         columnData={columnData.filter(column => column && !column.hidden)}
         defaultPageSize={10}
         loading={loading}
         rowData={posts}
         rowKey="id"
+        selectedRowKeys={selectedRows}
         totalCount={posts.length}
-        rowSelection={{
-          type: "checkbox",
-          onChange: selectedRowKeys => {
-            logger.info("Selected Row Keys:", selectedRowKeys);
-          },
-        }}
+        onRowSelect={handleRowSelection}
       />
       <FilterPane
         isOpen={isFilterPaneOpen}
