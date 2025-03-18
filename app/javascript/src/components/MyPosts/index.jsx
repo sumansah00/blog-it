@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 
-import { MenuHorizontal, Delete, Clock, Column, Filter } from "neetoicons";
-import { Dropdown, Table, Typography, Checkbox, Button } from "neetoui";
+import { MenuHorizontal, Delete, Clock, Filter } from "neetoicons";
+import { Dropdown, Table, Typography, Button } from "neetoui";
 import { useHistory } from "react-router-dom";
 
 import postsApi from "apis/post";
 
+import ColumnFilterMenu from "./ColumnFilterMenu";
 import FilterPane from "./FilterPane";
 
 const MyPosts = () => {
@@ -58,7 +59,6 @@ const MyPosts = () => {
   };
 
   const handleToggleColumnVisibility = columnKey => {
-    // Prevent toggling the title column
     if (columnKey === "title") return;
 
     setVisibleColumns(prev => {
@@ -67,7 +67,6 @@ const MyPosts = () => {
         [columnKey]: !prev[columnKey],
       };
 
-      // Fetch posts with updated column preferences
       fetchPosts(newVisibleColumns);
 
       return newVisibleColumns;
@@ -226,33 +225,6 @@ const MyPosts = () => {
     fetchPosts();
   }, []);
 
-  const ColumnFilterMenu = () => (
-    <Dropdown
-      position="bottom-end"
-      buttonProps={{
-        icon: Column,
-        style: "secondary",
-        label: "Columns",
-      }}
-    >
-      <Menu>
-        {columnData
-          .filter(column => column && column.key)
-          .map(column => (
-            <div className="p-2" key={column.key}>
-              <Checkbox
-                checked={visibleColumns[column.key]}
-                disabled={column.key === "title"}
-                id={`column-${column.key}`}
-                label={column.title || column.key}
-                onChange={() => handleToggleColumnVisibility(column.key)}
-              />
-            </div>
-          ))}
-      </Menu>
-    </Dropdown>
-  );
-
   return (
     <div className="max-w-full overflow-auto">
       <div className="mb-6 flex items-center justify-between">
@@ -263,7 +235,11 @@ const MyPosts = () => {
           </Typography>
         </div>
         <div>
-          <ColumnFilterMenu />
+          <ColumnFilterMenu
+            {...{ columnData }}
+            {...{ visibleColumns }}
+            {...{ handleToggleColumnVisibility }}
+          />
           <Button
             icon={Filter}
             style="tertiary"
