@@ -56,7 +56,7 @@ const MyPosts = () => {
     }
   };
 
-  const handleColumnToggle = columnKey => {
+  const handleToggleColumnVisibility = columnKey => {
     // Prevent toggling the title column
     if (columnKey === "title") return;
 
@@ -73,15 +73,15 @@ const MyPosts = () => {
     });
   };
 
-  const handleTitleClick = slug => {
+  const handleNavigateToPost = slug => {
     history.push(`/posts/${slug}/show`);
   };
 
-  const handleFilter = () => {
+  const handleOpenFilterPane = () => {
     setIsFilterPaneOpen(true);
   };
 
-  const handleApplyFilter = filters => {
+  const handleFilterPosts = filters => {
     logger.info("Applying filters:", filters);
     // Implement your filter logic here
     // You might want to pass these filters to your fetchPosts function
@@ -96,7 +96,7 @@ const MyPosts = () => {
       render: (title, post) => (
         <span
           className="cursor-pointer text-blue-600 hover:text-blue-800 hover:underline"
-          onClick={() => handleTitleClick(post?.slug)}
+          onClick={() => handleNavigateToPost(post?.slug)}
         >
           {(title || "Untitled").substring(0, 50)}
         </span>
@@ -245,7 +245,7 @@ const MyPosts = () => {
                 disabled={column.key === "title"}
                 id={`column-${column.key}`}
                 label={column.title || column.key}
-                onChange={() => handleColumnToggle(column.key)}
+                onChange={() => handleToggleColumnVisibility(column.key)}
               />
             </div>
           ))}
@@ -264,7 +264,11 @@ const MyPosts = () => {
         </div>
         <div>
           <ColumnFilterMenu />
-          <Button icon={Filter} style="tertiary" onClick={handleFilter} />
+          <Button
+            icon={Filter}
+            style="tertiary"
+            onClick={handleOpenFilterPane}
+          />
         </div>
       </div>
       <Table
@@ -285,7 +289,7 @@ const MyPosts = () => {
       />
       <FilterPane
         isOpen={isFilterPaneOpen}
-        onApplyFilter={handleApplyFilter}
+        onApplyFilter={handleFilterPosts}
         onClose={() => setIsFilterPaneOpen(false)}
       />
     </div>
