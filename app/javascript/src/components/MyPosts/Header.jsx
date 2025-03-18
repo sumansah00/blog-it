@@ -30,7 +30,7 @@ const Header = ({
             label="Change Status"
             options={[
               { label: "Draft", value: "draft" },
-              { label: "Published", value: "published" },
+              { label: "Publish", value: "published" },
             ]}
             onOptionClick={status => onStatusChange(selectedRows, status)}
           />

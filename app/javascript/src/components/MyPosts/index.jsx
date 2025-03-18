@@ -40,10 +40,8 @@ const MyPosts = () => {
     });
   };
 
-  const handleRowSelection = (selectedRowKeys, selectedRows) => {
+  const handleRowSelection = selectedRowKeys => {
     setSelectedRows(selectedRowKeys);
-    // You can also access the full selected row data from selectedRows parameter
-    logger.info("Selected rows:", selectedRows);
   };
 
   const handleBulkStatusChange = async (selectedIds, newStatus) => {
