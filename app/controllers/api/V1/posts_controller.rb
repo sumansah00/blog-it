@@ -3,21 +3,23 @@
 module Api
   module V1
     class PostsController < ApplicationController
-      after_action :verify_authorized, except: %i[index create]
+      after_action :verify_authorized, except: %i[index create my_post bulk_delete bulk_update_status]
       after_action :verify_policy_scoped, only: %i[index]
       before_action :load_post!, only: %i[show update destroy]
       before_action :load_posts_for_index, only: %i[index]
+      before_action :load_posts_for_my_post, only: %i[my_post]
 
       def index
+        filter_columns_for_posts if params[:visible_columns].present?
         render :index
       end
 
-      def create
-        post = Post.new(post_params)
-        post.user = current_user
-        post.organization = current_user.organization
+      def my_post
+        render :my_post
+      end
 
-        post.save!
+      def create
+        post = Posts::CreatorService.call(current_user, params)
         render_notice(t("successfully_created", entity: "Post"))
       end
 
@@ -38,6 +40,31 @@ module Api
         render_notice(t("successfully_deleted", entity: "Post"))
       end
 
+      def bulk_delete
+        posts = Post.where(id: params[:post_ids])
+        authorized_posts = posts.select { |post| post.user_id == current_user.id }
+
+        if authorized_posts.any?
+          Post.where(id: authorized_posts.map(&:id)).destroy_all
+          render_notice(t("successfully_deleted", entity: "Posts"))
+        else
+          render_error(t("not_found", entity: "Posts"))
+        end
+      end
+
+      def bulk_update_status
+        posts = Post.where(id: params[:post_ids])
+        authorized_posts = posts.select { |post| post.user_id == current_user.id }
+
+        if authorized_posts.any? && params[:status].present?
+          Post.where(id: authorized_posts.map(&:id))
+            .update_all(status: params[:status])
+          render_notice(t("successfully_updated", entity: "Posts status"))
+        else
+          render_error(t("not_found", entity: "Posts"))
+        end
+      end
+
       private
 
         def load_post!
@@ -53,24 +80,24 @@ module Api
           )
         end
 
+        def base_posts_query
+          posts = policy_scope(Post)
+          posts = posts.includes(:categories, :user, :organization)
+          Posts::FilterService.call(posts, params)
+        end
+
         def load_posts_for_index
-          @posts = policy_scope(Post)
-          @posts = @posts.includes(:categories, :user, :organization)
+          @posts = base_posts_query
+          @posts = @posts.where(status: "published")
+        end
 
-          if params[:filter] == "my_posts"
-            @posts = @posts.where(user_id: current_user.id)
-          else
-            @posts = @posts.where(status: "published")
-          end
+        def load_posts_for_my_post
+          @posts = base_posts_query
+          @posts = @posts.where(user_id: current_user.id)
+        end
 
-          if params[:category_ids].present?
-            category_ids = params[:category_ids].is_a?(String) ?
-                          params[:category_ids].split(",") :
-                          params[:category_ids]
-            @posts = @posts.joins(:categories)
-              .where(categories: { id: category_ids })
-              .distinct
-          end
+        def filter_columns_for_posts
+          @posts = Posts::ColumnFilterService.call(@posts, params[:visible_columns])
         end
     end
   end
