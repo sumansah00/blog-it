@@ -17,6 +17,7 @@ const MyPosts = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isFilterPaneOpen, setIsFilterPaneOpen] = useState(false);
+
   const [visibleColumns, setVisibleColumns] = useState({
     title: true,
     categories: true,

@@ -10,7 +10,7 @@ import BlogEdit from "components/Blog/Edit";
 import BlogPreview from "components/Blog/Preview";
 import Blogs from "components/Blogs";
 import { Navbar } from "components/commons";
-import MyPosts from "components/MyPosts/MyPosts";
+import MyPosts from "components/MyPosts";
 import { getFromLocalStorage } from "utils/storage";
 
 const Main = () => {
@@ -19,11 +19,9 @@ const Main = () => {
 
   return (
     <Switch>
-      {/* Public routes (no navbar) */}
       <Route exact component={Signup} path="/signup" />
       <Route exact component={Login} path="/login" />
       <Route exact component={BlogPreview} path="/posts/preview" />
-      {/* Protected routes with navbar */}
       {isLoggedIn ? (
         <Route path="/">
           <Navbar>
