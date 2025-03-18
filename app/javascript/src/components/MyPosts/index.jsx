@@ -1,61 +1,26 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
-import { MenuHorizontal, Delete, Clock, Filter } from "neetoicons";
-import { Dropdown, Table, Typography, Button } from "neetoui";
+import { Table } from "neetoui";
 import { useHistory } from "react-router-dom";
 
-import postsApi from "apis/post";
-
-import ColumnFilterMenu from "./ColumnFilterMenu";
 import FilterPane from "./FilterPane";
+import PostsHeader from "./Header";
+import { getColumnConfig } from "./tableConfig";
+
+import usePostsManager from "../../hooks/usePostsManager";
 
 const MyPosts = () => {
-  const {
-    Menu,
-    MenuItem: { Button: MenuItemButton },
-  } = Dropdown;
-
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [isFilterPaneOpen, setIsFilterPaneOpen] = useState(false);
-
-  const [visibleColumns, setVisibleColumns] = useState({
-    title: true,
-    categories: true,
-    last_published_at: true,
-    status: true,
-  });
   const history = useHistory();
-
-  const handleDelete = async slug => {
-    try {
-      logger.info("Deleting post:", slug);
-      await postsApi.destroy(slug);
-      await fetchPosts();
-    } catch (error) {
-      logger.error("Error deleting post:", error);
-    }
-  };
-
-  const handleUnpublish = async slug => {
-    try {
-      logger.info("Unpublishing post:", slug);
-      await postsApi.update(slug, { status: "draft" });
-      await fetchPosts();
-    } catch (error) {
-      logger.error("Error unpublishing post:", error);
-    }
-  };
-
-  const handlePublish = async slug => {
-    try {
-      logger.info("Publishing post:", slug);
-      await postsApi.update(slug, { status: "published" });
-      await fetchPosts();
-    } catch (error) {
-      logger.error("Error publishing post:", error);
-    }
-  };
+  const {
+    posts,
+    loading,
+    visibleColumns,
+    setVisibleColumns,
+    fetchPosts,
+    handleDelete,
+    handleStatusUpdate,
+  } = usePostsManager();
 
   const handleToggleColumnVisibility = columnKey => {
     if (columnKey === "title") return;
@@ -65,187 +30,29 @@ const MyPosts = () => {
         ...prev,
         [columnKey]: !prev[columnKey],
       };
-
       fetchPosts(newVisibleColumns);
 
       return newVisibleColumns;
     });
   };
 
-  const handleNavigateToPost = slug => {
-    history.push(`/posts/${slug}/show`);
-  };
-
-  const handleOpenFilterPane = () => {
-    setIsFilterPaneOpen(true);
-  };
-
-  const handleFilterPosts = filters => {
-    fetchPosts(visibleColumns, filters);
-  };
-
-  const columnData = [
-    {
-      title: "Title",
-      dataIndex: "title",
-      key: "title",
-      width: 250,
-      render: (title, post) => (
-        <span
-          className="cursor-pointer text-blue-600 hover:text-blue-800 hover:underline"
-          onClick={() => handleNavigateToPost(post?.slug)}
-        >
-          {(title || "Untitled").substring(0, 50)}
-        </span>
-      ),
-    },
-    {
-      title: "Category",
-      dataIndex: "categories",
-      key: "categories",
-      width: 200,
-      render: categories => {
-        if (!categories || !Array.isArray(categories)) return "-";
-
-        return (
-          categories
-            .filter(category => category && category.name)
-            .map(category => category.name)
-            .join(", ") || "-"
-        );
-      },
-      hidden: !visibleColumns.categories,
-    },
-    {
-      title: "Last Published At",
-      dataIndex: "last_published_at",
-      key: "last_published_at",
-      width: 150,
-      render: date => {
-        if (!date) return "-";
-        try {
-          return new Date(date).toLocaleDateString();
-        } catch (error) {
-          logger.error("Invalid date format:", error);
-
-          return "-";
-        }
-      },
-      hidden: !visibleColumns.last_published_at,
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      width: 100,
-      render: status => {
-        if (!status) return "-";
-
-        return status.charAt(0).toUpperCase() + status.slice(1);
-      },
-      hidden: !visibleColumns.status,
-    },
-    {
-      key: "actions",
-      width: 150,
-      hidden: !visibleColumns.actions,
-      render: (_, post) => {
-        if (!post || !post.slug) return null;
-
-        return (
-          <Dropdown
-            buttonStyle="secondary"
-            icon={MenuHorizontal}
-            strategy="fixed"
-          >
-            <Menu>
-              {post.status === "published" && (
-                <MenuItemButton
-                  icon={Clock}
-                  onClick={() => handleUnpublish(post.slug)}
-                >
-                  Unpublish
-                </MenuItemButton>
-              )}
-              {post.status === "draft" && (
-                <MenuItemButton
-                  icon={Clock}
-                  onClick={() => handlePublish(post.slug)}
-                >
-                  Publish
-                </MenuItemButton>
-              )}
-              <MenuItemButton
-                icon={Delete}
-                style="danger"
-                onClick={() => handleDelete(post.slug)}
-              >
-                Delete
-              </MenuItemButton>
-            </Menu>
-          </Dropdown>
-        );
-      },
-    },
-  ];
-
-  const fetchPosts = async (columns = visibleColumns, filters = {}) => {
-    try {
-      setLoading(true);
-      const visibleColumnsList = Object.entries(columns)
-        .filter(([_, isVisible]) => isVisible)
-        .map(([columnKey]) => columnKey);
-
-      const response = await postsApi.list({
-        visible_columns: visibleColumnsList.join(","),
-        title: filters.title || "",
-        category_ids: filters.category_ids || [],
-        status: filters.status || "",
-      });
-
-      const sanitizedPosts = (response?.data?.posts || []).map(post => ({
-        ...post,
-        categories: Array.isArray(post.categories) ? post.categories : [],
-        title: post.title || "Untitled",
-        status: post.status || "draft",
-        id: post.id || Math.random().toString(36).substr(2, 9),
-      }));
-
-      setPosts(sanitizedPosts);
-    } catch (error) {
-      logger.error("Error fetching posts:", error);
-      setPosts([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchPosts();
-  }, []);
+  const columnData = getColumnConfig({
+    visibleColumns,
+    onNavigate: slug => history.push(`/posts/${slug}/show`),
+    onDelete: handleDelete,
+    onPublish: slug => handleStatusUpdate(slug, "published"),
+    onUnpublish: slug => handleStatusUpdate(slug, "draft"),
+  });
 
   return (
     <div className="max-w-full overflow-auto">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <Typography style="h1">My Posts</Typography>
-          <Typography style="body2" weight="bold">
-            {posts.length} articles
-          </Typography>
-        </div>
-        <div>
-          <ColumnFilterMenu
-            {...{ columnData }}
-            {...{ visibleColumns }}
-            {...{ handleToggleColumnVisibility }}
-          />
-          <Button
-            icon={Filter}
-            style="tertiary"
-            onClick={handleOpenFilterPane}
-          />
-        </div>
-      </div>
+      <PostsHeader
+        columnData={columnData}
+        handleOpenFilterPane={() => setIsFilterPaneOpen(true)}
+        handleToggleColumnVisibility={handleToggleColumnVisibility}
+        postsCount={posts.length}
+        visibleColumns={visibleColumns}
+      />
       <Table
         bordered
         enableColumnResize
@@ -264,7 +71,7 @@ const MyPosts = () => {
       />
       <FilterPane
         isOpen={isFilterPaneOpen}
-        onApplyFilter={handleFilterPosts}
+        onApplyFilter={filters => fetchPosts(visibleColumns, filters)}
         onClose={() => setIsFilterPaneOpen(false)}
       />
     </div>
