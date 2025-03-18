@@ -23,7 +23,7 @@ const ColumnFilterMenu = ({
     >
       <Menu>
         {columnData
-          .filter(column => column && column.key)
+          .filter(column => column && column.key !== "actions")
           .map(column => (
             <MenuItemButton className="p-2" key={column.key}>
               <Checkbox

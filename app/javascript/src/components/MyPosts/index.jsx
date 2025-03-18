@@ -24,7 +24,6 @@ const MyPosts = () => {
     categories: true,
     last_published_at: true,
     status: true,
-    actions: true,
   });
   const history = useHistory();
 
