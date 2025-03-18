@@ -5,6 +5,7 @@ import { Column } from "neetoicons";
 import { Checkbox } from "neetoui";
 
 const ColumnFilterMenu = ({
+  label,
   columnData,
   visibleColumns,
   handleToggleColumnVisibility,
@@ -19,7 +20,7 @@ const ColumnFilterMenu = ({
       buttonStyle="secondary"
       dropdownProps={{ position: "bottom-end" }}
       icon={Column}
-      label="Columns"
+      label={label}
     >
       <Menu>
         {columnData

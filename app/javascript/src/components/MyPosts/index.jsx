@@ -4,6 +4,8 @@ import { Table } from "neetoui";
 import { isNotEmpty } from "ramda";
 import { useHistory } from "react-router-dom";
 
+import postsApi from "apis/post";
+
 import FilterPane from "./FilterPane";
 import PostsHeader from "./Header";
 import { getColumnConfig } from "./tableConfig";
@@ -44,6 +46,26 @@ const MyPosts = () => {
     logger.info("Selected rows:", selectedRows);
   };
 
+  const handleBulkStatusChange = async (selectedIds, newStatus) => {
+    try {
+      await postsApi.bulkUpdateStatus(selectedIds, newStatus);
+      setSelectedRows([]);
+      fetchPosts(visibleColumns);
+    } catch (error) {
+      logger.error("Error updating status:", error);
+    }
+  };
+
+  const handleBulkDelete = async selectedIds => {
+    try {
+      await postsApi.bulkDelete(selectedIds);
+      setSelectedRows([]);
+      fetchPosts(visibleColumns);
+    } catch (error) {
+      logger.error("Error deleting posts:", error);
+    }
+  };
+
   const columnData = getColumnConfig({
     visibleColumns,
     onNavigate: slug => history.push(`/posts/${slug}/show`),
@@ -58,11 +80,13 @@ const MyPosts = () => {
         columnData={columnData}
         handleOpenFilterPane={() => setIsFilterPaneOpen(true)}
         handleToggleColumnVisibility={handleToggleColumnVisibility}
-        selectedRowsCount={selectedRows.length}
+        selectedRows={selectedRows} // Changed from selectedRowsCount
         visibleColumns={visibleColumns}
         postsCount={
           isNotEmpty(selectedRows) ? selectedRows.length : posts.length
         }
+        onBulkDelete={handleBulkDelete} // Add this
+        onStatusChange={handleBulkStatusChange} // Add this
       />
       <Table
         bordered
