@@ -6,7 +6,8 @@ module Api
       after_action :verify_authorized, except: %i[index create my_post]
       after_action :verify_policy_scoped, only: %i[index]
       before_action :load_post!, only: %i[show update destroy]
-      before_action :load_posts_for_index, only: %i[index my_post]
+      before_action :load_posts_for_index, only: %i[index]
+      before_action :load_posts_for_my_post, only: %i[my_post]
 
       def index
         filter_columns_for_posts if params[:visible_columns].present?
@@ -58,23 +59,39 @@ module Api
           )
         end
 
-        def load_posts_for_index
-          @posts = policy_scope(Post)
-          @posts = @posts.includes(:categories, :user, :organization)
-
-          if params[:filter] == "my_posts"
-            @posts = @posts.where(user_id: current_user.id)
-          else
-            @posts = @posts.where(status: "published")
-          end
+        def base_posts_query
+          posts = policy_scope(Post)
+          posts = posts.includes(:categories, :user, :organization)
 
           if params[:category_ids].present?
             category_ids = params[:category_ids].is_a?(String) ?
                           params[:category_ids].split(",") :
                           params[:category_ids]
-            @posts = @posts.joins(:categories)
+            posts = posts.joins(:categories)
               .where(categories: { id: category_ids })
               .distinct
+          end
+
+          posts
+        end
+
+        def load_posts_for_index
+          @posts = base_posts_query
+          @posts = @posts.where(status: "published")
+        end
+
+        def load_posts_for_my_post
+          @posts = base_posts_query
+          @posts = @posts.where(user_id: current_user.id)
+
+          # Add title filter
+          if params[:title].present?
+            @posts = @posts.where("title LIKE ?", "%#{params[:title]}%")
+          end
+
+          # Add status filter
+          if params[:status].present?
+            @posts = @posts.where(status: params[:status])
           end
         end
 

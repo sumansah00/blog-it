@@ -82,9 +82,7 @@ const MyPosts = () => {
   };
 
   const handleFilterPosts = filters => {
-    logger.info("Applying filters:", filters);
-    // Implement your filter logic here
-    // You might want to pass these filters to your fetchPosts function
+    fetchPosts(visibleColumns, filters);
   };
 
   const columnData = [
@@ -192,7 +190,7 @@ const MyPosts = () => {
     },
   ];
 
-  const fetchPosts = async (columns = visibleColumns) => {
+  const fetchPosts = async (columns = visibleColumns, filters = {}) => {
     try {
       setLoading(true);
       const visibleColumnsList = Object.entries(columns)
@@ -200,23 +198,24 @@ const MyPosts = () => {
         .map(([columnKey]) => columnKey);
 
       const response = await postsApi.list({
-        filter: "my_posts",
         visible_columns: visibleColumnsList.join(","),
+        title: filters.title || "",
+        category_ids: filters.category_ids || [],
+        status: filters.status || "",
       });
 
-      // Validate and sanitize the response data
       const sanitizedPosts = (response?.data?.posts || []).map(post => ({
         ...post,
         categories: Array.isArray(post.categories) ? post.categories : [],
         title: post.title || "Untitled",
         status: post.status || "draft",
-        id: post.id || Math.random().toString(36).substr(2, 9), // Fallback ID if needed
+        id: post.id || Math.random().toString(36).substr(2, 9),
       }));
 
       setPosts(sanitizedPosts);
     } catch (error) {
       logger.error("Error fetching posts:", error);
-      setPosts([]); // Set empty array on error
+      setPosts([]);
     } finally {
       setLoading(false);
     }
