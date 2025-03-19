@@ -9,6 +9,8 @@ class Post < ApplicationRecord
   belongs_to :user
   belongs_to :organization
   has_and_belongs_to_many :categories
+  has_many :votes, dependent: :destroy
+  has_many :voting_users, through: :votes, source: :user
 
   validates :title,
     presence: true,
@@ -23,6 +25,22 @@ class Post < ApplicationRecord
 
   before_create :set_slug
   before_save :update_last_published_at, if: :status_changed?
+
+  def update_vote_counts
+    update_columns(
+      upvotes: votes.where(vote_type: "upvote").count,
+      downvotes: votes.where(vote_type: "downvote").count
+    )
+    check_bloggable_status
+  end
+
+  def net_votes
+    upvotes - downvotes
+  end
+
+  def vote_by_user(user)
+    votes.find_by(user: user)
+  end
 
   private
 
@@ -55,5 +73,10 @@ class Post < ApplicationRecord
 
     def status_changed_to_published?
       status_was != "published" && status == "published"
+    end
+
+    def check_bloggable_status
+      should_be_bloggable = net_votes >= Constants::VOTE_THRESHOLD
+      update_column(:is_bloggable, should_be_bloggable) if is_bloggable != should_be_bloggable
     end
 end

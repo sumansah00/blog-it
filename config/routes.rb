@@ -11,6 +11,11 @@ Rails.application.routes.draw do
             delete :bulk_delete
             put :bulk_update_status
           end
+
+          member do
+            post :upvote
+            post :downvote
+          end
         end
         resources :categories, only: %i[index create]
         resources :organizations, only: %i[index]
