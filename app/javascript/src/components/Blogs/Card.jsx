@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 
-import { Typography, Button } from "@bigbinary/neetoui";
 import dayjs from "dayjs";
 import { UpArrow, DownArrow } from "neetoicons";
+import { Typography, Button, Tag } from "neetoui";
 import PropTypes from "prop-types";
 import { useHistory } from "react-router-dom";
 
@@ -69,11 +69,7 @@ const Card = ({ blog }) => {
     >
       <div className="flex items-start justify-between">
         <Typography style="h4">{title}</Typography>
-        {voteData.is_bloggable && (
-          <span className="ml-2 rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
-            Blog it
-          </span>
-        )}
+        {voteData.is_bloggable && <Tag label="Blog it" style="success" />}
       </div>
       <Typography className="line-clamp-2 overflow-hidden text-sm text-gray-600">
         {description}
