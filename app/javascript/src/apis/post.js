@@ -37,6 +37,9 @@ const bulkDelete = ids =>
     data: { post_ids: ids },
   });
 
+const upvote = id => axios.post(`/posts/${id}/upvote`);
+const downvote = id => axios.post(`/posts/${id}/downvote`);
+
 const postsApi = {
   fetch,
   create,
@@ -46,6 +49,8 @@ const postsApi = {
   list,
   bulkUpdateStatus,
   bulkDelete,
+  upvote,
+  downvote,
 };
 
 export default postsApi;

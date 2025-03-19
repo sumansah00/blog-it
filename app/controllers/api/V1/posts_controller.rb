@@ -3,9 +3,9 @@
 module Api
   module V1
     class PostsController < ApplicationController
-      after_action :verify_authorized, except: %i[index create my_post bulk_delete bulk_update_status]
+      after_action :verify_authorized, except: %i[index create my_post bulk_delete bulk_update_status upvote downvote]
       after_action :verify_policy_scoped, only: %i[index]
-      before_action :load_post!, only: %i[show update destroy]
+      before_action :load_post!, only: %i[show update destroy upvote downvote]
       before_action :load_posts_for_index, only: %i[index]
       before_action :load_posts_for_my_post, only: %i[my_post]
 
@@ -65,6 +65,14 @@ module Api
         end
       end
 
+      def upvote
+        handle_vote("upvote")
+      end
+
+      def downvote
+        handle_vote("downvote")
+      end
+
       private
 
         def load_post!
@@ -98,6 +106,27 @@ module Api
 
         def filter_columns_for_posts
           @posts = Posts::ColumnFilterService.call(@posts, params[:visible_columns])
+        end
+
+        def handle_vote(vote_type)
+          existing_vote = @post.vote_by_user(current_user)
+
+          if existing_vote
+            if existing_vote.vote_type == vote_type
+              existing_vote.destroy
+            else
+              existing_vote.update(vote_type: vote_type)
+            end
+          else
+            @post.votes.create(user: current_user, vote_type: vote_type)
+          end
+
+          render json: {
+            net_votes: @post.net_votes,
+            upvotes: @post.upvotes,
+            downvotes: @post.downvotes,
+            is_bloggable: @post.is_bloggable
+          }
         end
     end
   end

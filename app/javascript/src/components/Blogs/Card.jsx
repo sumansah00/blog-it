@@ -1,11 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 
-import { Typography } from "@bigbinary/neetoui";
 import dayjs from "dayjs";
+import { UpArrow, DownArrow } from "neetoicons";
+import { Typography, Button, Tag } from "neetoui";
 import PropTypes from "prop-types";
 import { useHistory } from "react-router-dom";
 
-const Post = ({ blog }) => {
+import postsApi from "apis/post";
+
+const Card = ({ blog }) => {
   const {
     title,
     description,
@@ -14,22 +17,85 @@ const Post = ({ blog }) => {
     user,
     categories,
     organization,
+    upvotes,
+    downvotes,
+    is_bloggable,
+    user_vote,
   } = blog;
-  const history = useHistory();
 
-  const handleCardClick = () => {
+  logger.info("Blog:", blog);
+
+  const history = useHistory();
+  const [voteData, setVoteData] = useState({
+    upvotes: upvotes || 0,
+    downvotes: downvotes || 0,
+    is_bloggable: is_bloggable || false,
+    userVote: user_vote,
+  });
+
+  const handleCardClick = e => {
+    if (e.target.closest(".voting-section")) {
+      return;
+    }
     history.push(`/posts/${slug}/show`);
   };
+
+  const handleVote = async (voteType, e) => {
+    e.stopPropagation();
+    try {
+      const response = await (voteType === "upvote"
+        ? postsApi.upvote(slug)
+        : postsApi.downvote(slug));
+
+      setVoteData({
+        upvotes: response.data.upvotes,
+        downvotes: response.data.downvotes,
+        is_bloggable: response.data.is_bloggable,
+        userVote: response.data.user_vote,
+      });
+    } catch (error) {
+      logger.error("Error voting:", error);
+    }
+  };
+
+  const netVotes = voteData.upvotes - voteData.downvotes;
 
   return (
     <div
       className="border-1 flex cursor-pointer flex-col gap-1 rounded-md border bg-white p-4 shadow-sm transition-colors hover:bg-gray-50"
+      role="button"
+      tabIndex={0}
       onClick={handleCardClick}
     >
-      <Typography style="h4">{title}</Typography>
+      <div className="flex items-start justify-between">
+        <Typography style="h4">{title}</Typography>
+        {voteData.is_bloggable && <Tag label="Blog it" style="success" />}
+      </div>
       <Typography className="line-clamp-2 overflow-hidden text-sm text-gray-600">
         {description}
       </Typography>
+      <div className="voting-section mt-2 flex items-center gap-2">
+        <Button
+          icon={UpArrow}
+          size="small"
+          style={voteData.userVote === "upvote" ? "primary" : "secondary"}
+          onClick={e => handleVote("upvote", e)}
+        />
+        <Typography
+          style="body2"
+          className={`${
+            netVotes > 0 ? "text-green-500" : netVotes < 0 ? "text-red-500" : ""
+          }`}
+        >
+          {netVotes}
+        </Typography>
+        <Button
+          icon={DownArrow}
+          size="small"
+          style={voteData.userVote === "downvote" ? "primary" : "secondary"}
+          onClick={e => handleVote("downvote", e)}
+        />
+      </div>
       <div className="mt-2 flex items-center justify-between">
         <div className="flex flex-col">
           <Typography className="text-xs text-gray-500">
@@ -59,12 +125,16 @@ const Post = ({ blog }) => {
   );
 };
 
-Post.propTypes = {
+Card.propTypes = {
   blog: PropTypes.shape({
     title: PropTypes.string.isRequired,
     description: PropTypes.string.isRequired,
     created_at: PropTypes.string,
     slug: PropTypes.string.isRequired,
+    upvotes: PropTypes.number,
+    downvotes: PropTypes.number,
+    is_bloggable: PropTypes.bool,
+    user_vote: PropTypes.string,
     user: PropTypes.shape({
       name: PropTypes.string,
     }),
@@ -80,4 +150,4 @@ Post.propTypes = {
   }).isRequired,
 };
 
-export default Post;
+export default Card;

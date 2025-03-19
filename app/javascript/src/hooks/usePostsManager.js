@@ -30,8 +30,10 @@ const usePostsManager = () => {
         ...post,
         categories: Array.isArray(post.categories) ? post.categories : [],
         title: post.title || "Untitled",
-        status: post.status || "draft",
-        id: post.id || Math.random().toString(36).substr(2, 9),
+        upvotes: post.upvotes || 0,
+        downvotes: post.downvotes || 0,
+        is_bloggable: post.is_bloggable || false,
+        user_vote: post.user_vote || null,
       }));
 
       setPosts(sanitizedPosts);
