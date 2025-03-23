@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 
-import Logger from "js-logger";
 import { Edit, Download } from "neetoicons";
 import { Typography, Button, Avatar } from "neetoui";
 import PropTypes from "prop-types";
@@ -10,14 +9,13 @@ import postsApi from "apis/post";
 import { PageLoader } from "components/commons";
 import { getFromLocalStorage } from "utils/storage";
 
-import DownloadProgressModal from "./DownloadProgressModal";
+import DownloadModal from "../DetailedBlog/DownloadModal";
 
 const Blog = ({ previewData }) => {
   const [blog, setBlog] = useState(null);
   const [pageLoading, setPageLoading] = useState(true);
   const [isAuthor, setIsAuthor] = useState(false);
-  const [isDownloading, setIsDownloading] = useState(false);
-  const [downloadProgress, setDownloadProgress] = useState("generating");
+  const [showModal, setShowModal] = useState(false);
 
   const { slug } = useParams();
   const history = useHistory();
@@ -37,7 +35,7 @@ const Blog = ({ previewData }) => {
 
       setPageLoading(false);
     } catch (error) {
-      Logger.error("Failed to fetch blog:", error);
+      logger.error("Failed to fetch blog:", error);
       setPageLoading(false);
     }
   };
@@ -57,69 +55,8 @@ const Blog = ({ previewData }) => {
     history.push(`/posts/${slug}/edit`);
   };
 
-  const generatePdf = async () => {
-    try {
-      await postsApi.generatePdf(slug);
-
-      return true;
-    } catch (error) {
-      Logger.error("Error generating PDF:", error);
-
-      return false;
-    }
-  };
-
-  const saveAs = ({ blob, fileName }) => {
-    const objectUrl = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = objectUrl;
-    link.setAttribute("download", fileName);
-    document.body.appendChild(link);
-    link.click();
-    link.parentNode.removeChild(link);
-    setTimeout(() => window.URL.revokeObjectURL(objectUrl), 150);
-  };
-
-  const downloadPdf = async () => {
-    try {
-      setDownloadProgress("downloading");
-      const { data } = await postsApi.downloadPdf(slug);
-      saveAs({ blob: data, fileName: "BlogIT_post_report.pdf" });
-
-      return true;
-    } catch (error) {
-      Logger.error("Error downloading PDF:", error);
-
-      return false;
-    }
-  };
-
-  const handleDownload = async () => {
-    setIsDownloading(true);
-    setDownloadProgress("generating");
-
-    const generated = await generatePdf();
-    if (!generated) {
-      setIsDownloading(false);
-
-      return;
-    }
-
-    // Wait for the PDF to be generated
-    setTimeout(async () => {
-      const downloaded = await downloadPdf();
-      if (downloaded) {
-        setTimeout(() => {
-          setIsDownloading(false);
-        }, 1000);
-      } else {
-        setIsDownloading(false);
-      }
-    }, 3000);
-  };
-
-  const handleCloseDownloadModal = () => {
-    setIsDownloading(false);
+  const handleDownload = () => {
+    setShowModal(true);
   };
 
   if (pageLoading) {
@@ -230,11 +167,13 @@ const Blog = ({ previewData }) => {
           <Typography style="body1">{blog.description}</Typography>
         </div>
       </article>
-      <DownloadProgressModal
-        isOpen={isDownloading}
-        progress={downloadProgress}
-        onClose={handleCloseDownloadModal}
-      />
+      {showModal && (
+        <DownloadModal
+          setShowModal={setShowModal}
+          showModal={showModal}
+          slug={blog.slug}
+        />
+      )}
     </div>
   );
 };

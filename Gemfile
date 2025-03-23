@@ -90,5 +90,9 @@ gem "pg"
 
 gem "sidekiq", ">=7"
 
+gem "google-cloud-storage"
 gem "wicked_pdf"
 gem "wkhtmltopdf-binary"
+
+gem "dotenv-rails"
+gem "redis", "~> 4.0"

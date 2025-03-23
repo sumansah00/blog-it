@@ -11,6 +11,7 @@ class Post < ApplicationRecord
   has_and_belongs_to_many :categories
   has_many :votes, dependent: :destroy
   has_many :voting_users, through: :votes, source: :user
+  has_one_attached :report
 
   validates :title,
     presence: true,
@@ -78,5 +79,9 @@ class Post < ApplicationRecord
     def check_bloggable_status
       should_be_bloggable = net_votes >= Constants::VOTE_THRESHOLD
       update_column(:is_bloggable, should_be_bloggable) if is_bloggable != should_be_bloggable
+    end
+
+    def publish?
+      status_before_type_cast == "publish"
     end
 end
