@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import Logger from "js-logger";
-import { Edit } from "neetoicons";
+import { Edit, Download } from "neetoicons";
 import { Typography, Button, Avatar } from "neetoui";
 import PropTypes from "prop-types";
 import { useParams, useHistory } from "react-router-dom";
@@ -10,10 +10,14 @@ import postsApi from "apis/post";
 import { PageLoader } from "components/commons";
 import { getFromLocalStorage } from "utils/storage";
 
+import DownloadProgressModal from "./DownloadProgressModal";
+
 const Blog = ({ previewData }) => {
   const [blog, setBlog] = useState(null);
   const [pageLoading, setPageLoading] = useState(true);
   const [isAuthor, setIsAuthor] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState("generating");
 
   const { slug } = useParams();
   const history = useHistory();
@@ -51,6 +55,71 @@ const Blog = ({ previewData }) => {
 
   const handleEdit = () => {
     history.push(`/posts/${slug}/edit`);
+  };
+
+  const generatePdf = async () => {
+    try {
+      await postsApi.generatePdf(slug);
+
+      return true;
+    } catch (error) {
+      Logger.error("Error generating PDF:", error);
+
+      return false;
+    }
+  };
+
+  const saveAs = ({ blob, fileName }) => {
+    const objectUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = objectUrl;
+    link.setAttribute("download", fileName);
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode.removeChild(link);
+    setTimeout(() => window.URL.revokeObjectURL(objectUrl), 150);
+  };
+
+  const downloadPdf = async () => {
+    try {
+      setDownloadProgress("downloading");
+      const { data } = await postsApi.downloadPdf(slug);
+      saveAs({ blob: data, fileName: "BlogIT_post_report.pdf" });
+
+      return true;
+    } catch (error) {
+      Logger.error("Error downloading PDF:", error);
+
+      return false;
+    }
+  };
+
+  const handleDownload = async () => {
+    setIsDownloading(true);
+    setDownloadProgress("generating");
+
+    const generated = await generatePdf();
+    if (!generated) {
+      setIsDownloading(false);
+
+      return;
+    }
+
+    // Wait for the PDF to be generated
+    setTimeout(async () => {
+      const downloaded = await downloadPdf();
+      if (downloaded) {
+        setTimeout(() => {
+          setIsDownloading(false);
+        }, 1000);
+      } else {
+        setIsDownloading(false);
+      }
+    }, 3000);
+  };
+
+  const handleCloseDownloadModal = () => {
+    setIsDownloading(false);
   };
 
   if (pageLoading) {
@@ -98,17 +167,28 @@ const Blog = ({ previewData }) => {
             {formattedDate}{" "}
             {blog.last_published_at ? "(published)" : "(created)"}
           </Typography>
-          {isAuthor && (
+          <div className="flex gap-2">
             <Button
-              icon={Edit}
+              icon={Download}
               size="small"
               tooltipProps={{
                 position: "top",
-                content: "Edit Blog",
+                content: "Download as PDF",
               }}
-              onClick={handleEdit}
+              onClick={handleDownload}
             />
-          )}{" "}
+            {isAuthor && (
+              <Button
+                icon={Edit}
+                size="small"
+                tooltipProps={{
+                  position: "top",
+                  content: "Edit Blog",
+                }}
+                onClick={handleEdit}
+              />
+            )}
+          </div>
         </header>
         {/* Author with image, name and date */}
         <div className="mt-2 flex items-center gap-3">
@@ -150,6 +230,11 @@ const Blog = ({ previewData }) => {
           <Typography style="body1">{blog.description}</Typography>
         </div>
       </article>
+      <DownloadProgressModal
+        isOpen={isDownloading}
+        progress={downloadProgress}
+        onClose={handleCloseDownloadModal}
+      />
     </div>
   );
 };

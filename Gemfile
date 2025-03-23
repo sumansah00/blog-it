@@ -87,3 +87,8 @@ gem "bcrypt", "~> 3.1.7"
 gem "simplecov", require: false, group: :test
 
 gem "pg"
+
+gem "sidekiq", ">=7"
+
+gem "wicked_pdf"
+gem "wkhtmltopdf-binary"

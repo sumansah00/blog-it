@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+    <title>Blog Post PDF</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+      }
+      h1 {
+        color: #4F46E5;
+        margin-bottom: 20px;
+      }
+      .header {
+        border-bottom: 1px solid #E5E7EB;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+      }
+      .metadata {
+        color: #6B7280;
+        font-size: 14px;
+        margin-bottom: 20px;
+      }
+      .content {
+        line-height: 1.5;
+      }
+      .category {
+        display: inline-block;
+        background-color: #F3F4F6;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        margin-right: 5px;
+        margin-bottom: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="content"><%= yield %></div>
+  </body>
+</html>

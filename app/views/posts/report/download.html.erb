@@ -1,0 +1,27 @@
+<div class="header">
+  <h1><%= @post.title %></h1>
+  <div class="metadata">
+    <p>Author: <%= @post.user.name if @post.user %></p>
+    <p>Created: <%= @post.created_at.strftime("%B %d, %Y") %></p>
+    <% if @post.organization %>
+      <p>Organization: <%= @post.organization.name %></p>
+    <% end %>
+  </div>
+
+  <% if @post.categories.any? %>
+    <div class="categories">
+      <% @post.categories.each do |category| %>
+        <span class="category"><%= category.name %></span>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<div class="content">
+  <p><%= @post.description %></p>
+</div>
+
+<div class="stats">
+  <p>Upvotes: <%= @post.upvotes || 0 %></p>
+  <p>Downvotes: <%= @post.downvotes || 0 %></p>
+</div>

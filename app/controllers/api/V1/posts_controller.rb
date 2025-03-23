@@ -19,7 +19,7 @@ module Api
       end
 
       def create
-        post = Posts::CreatorService.call(current_user, params)
+        post = ::Posts::CreatorService.call(current_user, params)
         render_notice(t("successfully_created", entity: "Post"))
       end
 
@@ -91,7 +91,7 @@ module Api
         def base_posts_query
           posts = policy_scope(Post)
           posts = posts.includes(:categories, :user, :organization)
-          Posts::FilterService.call(posts, params)
+          ::Posts::FilterService.call(posts, params)
         end
 
         def load_posts_for_index
@@ -105,7 +105,7 @@ module Api
         end
 
         def filter_columns_for_posts
-          @posts = Posts::ColumnFilterService.call(@posts, params[:visible_columns])
+          @posts = ::Posts::ColumnFilterService.call(@posts, params[:visible_columns])
         end
 
         def handle_vote(vote_type)

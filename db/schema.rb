@@ -48,7 +48,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_03_19_042406) do
     t.index ["status"], name: "index_posts_on_status"
     t.index ["user_id"], name: "index_posts_on_user_id"
   end
-
   create_table "users", force: :cascade do |t|
     t.string "name", null: false
     t.string "email", null: false

@@ -6,6 +6,11 @@ Rails.application.routes.draw do
     namespace :api do
       namespace :v1 do
         resources :posts, except: %i[new edit], param: :slug do
+
+          resource :report, only: %i[create], module: :posts do
+            get :download, on: :collection
+          end
+
           collection do
             get :my_post
             delete :bulk_delete
